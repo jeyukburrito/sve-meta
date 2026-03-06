@@ -1,0 +1,122 @@
+# =============================================================================
+# Shadowverse EVOLVE 아키타입 정의 파일 — 작성 가이드 겸 마스터 템플릿
+# 스키마 상세: docs/ARCHETYPES_SCHEMA.md
+# =============================================================================
+#
+# 작성 원칙:
+#   1. 카드 원문 텍스트는 적지 않는다 → cards.json에서 자동 조회됨
+#   2. "왜 이 카드가 이 덱의 핵심인가"를 1~2문장으로 쓴다
+#   3. 통계 근거가 없으면 confidence: low, note에 "플레이 경험 기반" 명시
+#   4. 전 카드 태깅 불필요 — 아키타입 내 핵심 5~10장만
+#   5. 확신이 낮은 내용은 적지 않기보다 confidence 낮춰서 적는 게 낫다
+#
+# local_roles 사용 가능 값:
+#   interaction         — 상대 카드에 반응하는 제거/방해
+#   removal             — 상대 필드 제거
+#   tempo_disruptor     — 상대 템포를 깨는 카드
+#   engine              — 지속적으로 자원을 만드는 카드
+#   payoff              — 조건 달성 시 폭발적 효과
+#   finisher            — 게임을 끝내는 카드
+#   stabilizer          — 위기 상황을 버티게 해주는 카드
+#   extender            — 같은 턴 추가 플레이를 가능하게 함
+#   tutor               — 필요한 카드를 서치
+#   graveyard_enabler   — 묘지 카드 수를 채워주는 카드
+#   graveyard_payoff_support — 묘지 참조 효과를 강화
+#   evo_target          — 진화 대상으로 쓰이는 카드
+#   defensive_trick     — 퀵 등 기습적 방어 수단
+#   reach               — 리더 직접 데미지
+
+id: archetype_id_here          # 예: elf_combo (영문 소문자, 언더스코어)
+display_name: 한국어이름         # 예: 콤보 엘프 (2~5글자 한국어, 일본어 단독 금지)
+class: クラス名                  # エルフ / ロイヤル / ウィッチ / ドラゴン / ナイトメア / ビショップ
+                                # / プリンセスコネクト！Re:Dive / ウマ娘 プリティーダービー
+                                # / アイドルマスター シンデレラガールズ
+status: experimental            # experimental(경험 기반) | stable(대회 데이터 충분)
+
+# 한 줄 덱 정의 — 이 덱은 무엇을 하는 덱인가 (1~2문장)
+one_liner: >
+  TODO
+
+# 초/중/후반 운영 흐름
+gameplan:
+  early: >
+    TODO: 1~3턴 운영 (무엇을 세우고 무엇을 아끼는가)
+  mid: >
+    TODO: 4~6턴 핵심 행동 (전환점이 되는 턴/카드)
+  late: >
+    TODO: 7턴+ 마무리 플랜
+
+# 승리 조건
+win_conditions:
+  - TODO  # 예: "콤보 N 달성 턴에 필드 + 직접 데미지로 원킬"
+
+# 패배 조건 (언제 이 덱은 지는가)
+lose_conditions:
+  - TODO  # 예: "초반 필드 압도당하면 회복 수단 없음"
+
+# 멀리건 기준
+mulligan:
+  keep:
+    - TODO  # 카드명: 이유 (예: "スクナ: 콤보 카운터 핵심")
+  conditional_keep:
+    - card_name: TODO
+      when: TODO  # 예: "후공 시", "상대가 ナイトメア일 때"
+  toss:
+    - TODO  # 예: "고코스트 페이오프 (손에 엔진 없을 때)"
+
+# 핵심 카드 (5~10장만 작성)
+core_cards:
+  - card_name: TODO
+    quantity_note: TODO        # 예: "3장 고정", "2~3장", "1장"
+    local_roles:
+      - TODO                   # role_vocab 중 선택
+    why_it_matters: >
+      TODO: 왜 이 덱에서 이 카드가 필요한가 (1~2문장)
+    combo_with:
+      - TODO                   # 시너지 대상 카드명
+    conditions:
+      - TODO                   # 발동 조건이 있으면 (없으면 줄 삭제)
+
+# 핵심 시너지 패키지 (2~4개)
+synergy_packages:
+  - package_name: TODO         # 예: "콤보 기폭 루프"
+    summary: TODO              # 1문장
+    cards:
+      - TODO
+    sequence_example:
+      - TODO                   # 예: "1. A 플레이 → 2. B 발동 → 3. C 페이오프"
+    payoff: TODO               # 이 조합으로 얻는 것
+
+# 플레이 패턴 (상황별 운영 방식)
+play_patterns:
+  - name: TODO                 # 예: "선공 콤보 선전"
+    when_to_use: TODO          # 어떤 상황에서
+    how_it_works: TODO         # 어떻게 실행하는가
+    risk: TODO                 # 실패 시 리스크
+
+# 약점
+weaknesses:
+  - TODO  # 예: "광역 제거 1장으로 템포 전부 잃음"
+
+# 흔한 실수
+common_mistakes:
+  - TODO  # 예: "콤보 달성 전 진화를 써버림"
+
+# 매치업 메모 (주요 상대 클래스만)
+matchup_notes:
+  - versus: TODO               # 상대 클래스명
+    plan: TODO                 # 기본 플랜
+    key_cards:
+      - TODO                   # 이 매치업에서 중요한 카드
+
+# RAG 검색 힌트 (이 파일이 어떤 질문에 히트될지)
+retrieval_hints:
+  keywords:
+    - TODO  # 예: コンボ, 疾走, ファンファーレ
+  tags:
+    - TODO  # 예: aggro, combo, midrange, control, ramp, tempo
+
+confidence:
+  level: low                   # low | medium | high
+  note: >
+    TODO: 작성 근거 (예: "2026-02 대회 결과 기반", "개인 플레이 경험 기반")

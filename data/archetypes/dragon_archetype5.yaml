@@ -1,0 +1,86 @@
+# ドラゴン — archetype5 (1건)
+# 클러스터 대표 카드 (작성 힌트용):
+#   セラフィックレオ・ガルエル
+#   竜喰らう禁忌
+#   オーブキャンサー
+#   帥忍部長・煤木万裁
+#   パッションチャンピオーナ！
+
+id: dragon_archetype5
+display_name: 모멸 드래곤
+class: ドラゴン
+status: experimental
+
+one_liner: >
+  # TODO
+
+gameplan:
+  early: >
+    # TODO
+  mid: >
+    # TODO
+  late: >
+    # TODO
+
+win_conditions:
+  - # TODO
+
+lose_conditions:
+  - # TODO
+
+mulligan:
+  keep:
+    - # TODO
+  conditional_keep:
+    - card_name: # TODO
+      when: # TODO
+  toss:
+    - # TODO
+
+core_cards:
+  - card_name: # TODO
+    quantity_note: # TODO
+    local_roles:
+      - # TODO
+    why_it_matters: >
+      # TODO
+    combo_with:
+      - # TODO
+
+synergy_packages:
+  - package_name: # TODO
+    summary: # TODO
+    cards:
+      - # TODO
+    sequence_example:
+      - # TODO
+    payoff: # TODO
+
+play_patterns:
+  - name: # TODO
+    when_to_use: # TODO
+    how_it_works: # TODO
+    risk: # TODO
+
+weaknesses:
+  - # TODO
+
+common_mistakes:
+  - # TODO
+
+matchup_notes:
+  - versus: # TODO
+    plan: # TODO
+    key_cards:
+      - # TODO
+
+retrieval_hints:
+  keywords:
+    - # TODO
+  tags:
+    - # TODO
+
+confidence:
+  level: low
+  note: >
+    # TODO

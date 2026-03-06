@@ -1,0 +1,86 @@
+# エルフ — archetype3 (4건)
+# 클러스터 대표 카드 (작성 힌트용):
+#   爆砕の傭兵・フィーナ
+#   マドロスエルフ
+#   優美な猫姉妹・シャム＆シャマ
+#   宿命の狐火・セッカ
+#   深緑の弓使い・アリサ
+
+id: elf_archetype3
+display_name: 연악 엘프
+class: エルフ
+status: experimental
+
+one_liner: >
+  # TODO
+
+gameplan:
+  early: >
+    # TODO
+  mid: >
+    # TODO
+  late: >
+    # TODO
+
+win_conditions:
+  - # TODO
+
+lose_conditions:
+  - # TODO
+
+mulligan:
+  keep:
+    - # TODO
+  conditional_keep:
+    - card_name: # TODO
+      when: # TODO
+  toss:
+    - # TODO
+
+core_cards:
+  - card_name: # TODO
+    quantity_note: # TODO
+    local_roles:
+      - # TODO
+    why_it_matters: >
+      # TODO
+    combo_with:
+      - # TODO
+
+synergy_packages:
+  - package_name: # TODO
+    summary: # TODO
+    cards:
+      - # TODO
+    sequence_example:
+      - # TODO
+    payoff: # TODO
+
+play_patterns:
+  - name: # TODO
+    when_to_use: # TODO
+    how_it_works: # TODO
+    risk: # TODO
+
+weaknesses:
+  - # TODO
+
+common_mistakes:
+  - # TODO
+
+matchup_notes:
+  - versus: # TODO
+    plan: # TODO
+    key_cards:
+      - # TODO
+
+retrieval_hints:
+  keywords:
+    - # TODO
+  tags:
+    - # TODO
+
+confidence:
+  level: low
+  note: >
+    # TODO
