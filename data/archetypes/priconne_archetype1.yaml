@@ -9,21 +9,23 @@
 id: priconne_archetype1
 display_name: 스펠 프리코네
 class: プリンセスコネクト！Re:Dive
-status: experimental
+status: active
 
 one_liner: >
-  # TODO
+  ユニ による盤面制圧と7ターン目の20点を超える大ダメージで勝利を目指すデッキ。
 
 gameplan:
   early: >
-    # TODO
+    コールオブギルド や チエル などで必要なパーツを揃える。
   mid: >
-    # TODO
+    ユニ による盤面形成や キャル の超進化能力で相手の盤面を捌きながら大ダメージを与える。
   late: >
-    # TODO
+    7PP以降に エリス からコスト軽減によって3コストになった ユニ をプレイし、
+    ユニオンバースト発動時のスペルのコスト軽減と エリス のユニオンバーストを
+    かけ合わせて1ターン中に勝負を決めるほどの大ダメージを狙う。
 
 win_conditions:
-  - # TODO
+  - エリス+ユニ のユニオンバースト連鎖による1ターン20点超えOTK
 
 lose_conditions:
   - # TODO
@@ -81,6 +83,6 @@ retrieval_hints:
     - # TODO
 
 confidence:
-  level: low
+  level: high
   note: >
-    # TODO
+    공식 최상위 대회 리포트 텍스트 기반 (2026년 3월)
