@@ -54,5 +54,6 @@ Phase 2 note:
 
 ## Code Review
 - 2026-03-13: Phase 0–1 검수 완료 → `REVIEW_2026-03-13.md` 참조. HIGH 1건(users INSERT RLS)은 반영 완료. MID 2건 중 폰트 로드는 현재 빌드 환경 제약으로 보류, 나머지 MID/LOW는 Phase 2에서 처리 예정.
+- 2026-03-14: Phase 2 중간 검수 → `REVIEW_2026-03-14.md` 참조. HIGH 1건(`/matches/new` 폼 필드 name/value 누락). 덱 관리 CRUD, RLS 정합성은 양호.
 
 ## Blockers

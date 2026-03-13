@@ -7,7 +7,7 @@
 ```
 sve_meta/
 ├── data/
-│   ├── 개인전_v2.txt          # 개인전 누적 데이터 (370건, 7컬럼 TSV)
+│   ├── 개인전_v2.txt          # 개인전 누적 데이터 (475건, 7컬럼 TSV)
 │   ├── 트리오.txt             # 트리오 누적 데이터 (71건)
 │   ├── raw/                   # 수집 원시 JSON
 │   ├── processed/             # 정제된 TSV
@@ -19,11 +19,15 @@ sve_meta/
 │   ├── cluster.py             # 덱 아키타입 군집 분석
 │   ├── card_stats.py          # 카드 채용률 통계
 │   ├── analyzer.py            # 클래스별 집계
+│   ├── weekly_stats.py        # 주간 통계 집계
+│   ├── visualize_weekly.py    # 주간 차트 생성
+│   ├── process_new_data.py    # 신규 데이터 처리
 │   └── archive/               # 일회성 스크립트
 ├── rag/
 │   ├── pipeline.py            # RAG 파이프라인 (TSV → enriched → prompt)
 │   ├── retriever.py           # CardRetriever (카드 DB 조회)
 │   └── prompt_builder.py      # Gemini 프롬프트 생성
+├── webapp/                    # 개인 전적 관리 웹앱 (Next.js + Supabase)
 ├── reports/                   # 메타 리포트 + 차트
 ├── output/                    # RAG 파이프라인 출력
 └── docs/                      # 룰북·프로젝트 문서
