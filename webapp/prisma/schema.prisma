@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id         String        @id @db.Uuid
+  email      String        @unique
+  name       String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  decks      Deck[]
+  matches    MatchResult[]
+  tags       Tag[]
+
+  @@map("users")
+}
+
+model Deck {
+  id         String        @id @default(uuid()) @db.Uuid
+  userId     String        @db.Uuid
+  name       String
+  color      String?
+  memo       String?
+  isActive   Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matches    MatchResult[]
+
+  @@unique([userId, name])
+  @@index([userId, isActive])
+  @@map("decks")
+}
+
+model MatchResult {
+  id               String           @id @default(uuid()) @db.Uuid
+  userId           String           @db.Uuid
+  myDeckId         String           @db.Uuid
+  playedAt         DateTime
+  opponentDeckName String
+  playOrder        PlayOrder
+  matchFormat      MatchFormat
+  wins             Int
+  losses           Int
+  isMatchWin       Boolean
+  eventType        EventType
+  memo             String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  myDeck           Deck             @relation(fields: [myDeckId], references: [id], onDelete: Restrict)
+  tags             MatchResultTag[]
+
+  @@index([userId, playedAt])
+  @@index([userId, opponentDeckName])
+  @@index([userId, playOrder])
+  @@index([userId, matchFormat])
+  @@map("match_results")
+}
+
+model Tag {
+  id         String           @id @default(uuid()) @db.Uuid
+  userId     String           @db.Uuid
+  name       String
+  createdAt  DateTime         @default(now())
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  matches    MatchResultTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model MatchResultTag {
+  matchResultId String      @db.Uuid
+  tagId         String      @db.Uuid
+  matchResult   MatchResult @relation(fields: [matchResultId], references: [id], onDelete: Cascade)
+  tag           Tag         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([matchResultId, tagId])
+  @@map("match_result_tags")
+}
+
+enum PlayOrder {
+  first
+  second
+}
+
+enum MatchFormat {
+  bo1
+  bo3
+}
+
+enum EventType {
+  ranked
+  shop
+  friendly
+  tournament
+}
