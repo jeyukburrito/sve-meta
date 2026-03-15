@@ -82,12 +82,12 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
         ) : null}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-500">현재 필터 기준으로 CSV 다운로드가 가능합니다.</p>
-          <Link
+          <a
             href={`/matches/export${exportParams.toString() ? `?${exportParams.toString()}` : ""}`}
             className="inline-flex rounded-full border border-line px-4 py-2 text-sm font-medium"
           >
             CSV 내보내기
-          </Link>
+          </a>
         </div>
         <form className="grid gap-3 md:grid-cols-4">
           <input
