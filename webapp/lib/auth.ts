@@ -6,20 +6,16 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
-export async function syncUserProfile(user: SupabaseUser) {
-  await prisma.user.upsert({
-    where: {
-      id: user.id,
-    },
-    update: {
-      email: user.email ?? "",
-      name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
-    },
-    create: {
-      id: user.id,
-      email: user.email ?? "",
-      name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
-    },
+export async function ensureUserProfile(user: SupabaseUser) {
+  await prisma.user.createMany({
+    data: [
+      {
+        id: user.id,
+        email: user.email ?? "",
+        name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
+      },
+    ],
+    skipDuplicates: true,
   });
 }
 
@@ -45,7 +41,7 @@ export async function requireUser() {
     redirect("/login");
   }
 
-  await syncUserProfile(user);
+  await ensureUserProfile(user);
 
   return user;
 }

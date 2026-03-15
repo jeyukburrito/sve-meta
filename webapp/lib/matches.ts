@@ -10,6 +10,8 @@ export type MatchFilters = {
   event: string;
 };
 
+export const MATCHES_PAGE_SIZE = 30;
+
 export function parseMatchFilters(searchParams?: URLSearchParams | Record<string, string | string[] | undefined>): MatchFilters {
   const read = (key: string) => {
     if (!searchParams) {
@@ -53,12 +55,16 @@ export function buildMatchWhere(userId: string, filters: MatchFilters): Prisma.M
   };
 }
 
-export async function listMatchesForUser(userId: string, filters: MatchFilters) {
+export async function listMatchesForUser(userId: string, filters: MatchFilters, page = 1) {
+  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+
   return prisma.matchResult.findMany({
     where: buildMatchWhere(userId, filters),
     orderBy: {
       playedAt: "desc",
     },
+    skip: (safePage - 1) * MATCHES_PAGE_SIZE,
+    take: MATCHES_PAGE_SIZE,
     include: {
       myDeck: {
         select: {
@@ -74,4 +80,46 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters) 
       },
     },
   });
+}
+
+export async function countMatchesForUser(userId: string, filters: MatchFilters) {
+  return prisma.matchResult.count({
+    where: buildMatchWhere(userId, filters),
+  });
+}
+
+export async function listMatchFilterOptions(userId: string) {
+  const [games, decks] = await Promise.all([
+    prisma.game.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
+    prisma.deck.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+        game: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  return { games, decks };
 }

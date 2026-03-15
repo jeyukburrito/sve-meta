@@ -3,8 +3,7 @@ import { DashboardCharts } from "@/components/dashboard-charts";
 import { HeaderActions } from "@/components/header-actions";
 import { PeriodFilter } from "@/components/period-filter";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
-import { buildDonutData, filterByPeriod } from "@/lib/dashboard";
-import { prisma } from "@/lib/prisma";
+import { getDashboardData } from "@/lib/dashboard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,30 +18,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const period = typeof params?.period === "string" ? params.period : "all";
   const from = typeof params?.from === "string" ? params.from : undefined;
   const to = typeof params?.to === "string" ? params.to : undefined;
-
-  const rows = await prisma.matchResult.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: {
-      playedAt: "desc",
-    },
-    include: {
-      myDeck: {
-        select: {
-          name: true,
-          game: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      },
-    },
+  const { myDeckSlices, opponentSlices, totalMatches } = await getDashboardData(user.id, {
+    period,
+    from,
+    to,
   });
-
-  const filtered = filterByPeriod(rows, { period, from, to });
-  const { myDeckSlices, opponentSlices, totalMatches } = buildDonutData(filtered);
 
   return (
     <AppShell title="대시보드" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>

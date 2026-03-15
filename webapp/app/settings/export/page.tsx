@@ -1,38 +1,14 @@
 import { AppShell } from "@/components/app-shell";
 import { HeaderActions } from "@/components/header-actions";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { listMatchFilterOptions } from "@/lib/matches";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExportPage() {
   const user = await requireUser();
   const display = getUserDisplayInfo(user);
-  const [games, decks] = await Promise.all([
-    prisma.game.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        name: "asc",
-      },
-    }),
-    prisma.deck.findMany({
-      where: {
-        userId: user.id,
-      },
-      orderBy: {
-        name: "asc",
-      },
-      include: {
-        game: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    }),
-  ]);
+  const { games, decks } = await listMatchFilterOptions(user.id);
 
   return (
     <AppShell title="데이터 내보내기" description="필요한 조건만 골라 CSV 파일로 내려받습니다." headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>

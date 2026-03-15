@@ -1,16 +1,6 @@
-import type { MatchResult } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-type DashboardRow = Pick<
-  MatchResult,
-  "playedAt" | "opponentDeckName" | "isMatchWin" | "myDeckId"
-> & {
-  myDeck: {
-    name: string;
-    game: {
-      name: string;
-    };
-  };
-};
+import { prisma } from "@/lib/prisma";
 
 export type DonutSlice = {
   name: string;
@@ -25,64 +15,94 @@ export type FilterOptions = {
   to?: string;
 };
 
-export function filterByPeriod(rows: DashboardRow[], opts: FilterOptions): DashboardRow[] {
-  const { period, from, to } = opts;
+type AggregateRow = {
+  name: string;
+  total: bigint | number;
+  wins: bigint | number;
+};
 
-  if (period === "all") return rows;
-
-  if (period === "custom") {
-    return rows.filter((row) => {
-      if (from && row.playedAt < new Date(from + "T00:00:00")) return false;
-      if (to) {
-        const end = new Date(to + "T00:00:00");
-        end.setDate(end.getDate() + 1);
-        if (row.playedAt >= end) return false;
-      }
-      return true;
-    });
-  }
-
-  const now = new Date();
-  const cutoff = new Date(now);
-  if (period === "7d") {
-    cutoff.setDate(now.getDate() - 7);
-  } else {
-    cutoff.setDate(now.getDate() - 30);
-  }
-
-  return rows.filter((row) => row.playedAt >= cutoff);
+function bigintToNumber(value: bigint | number) {
+  return typeof value === "bigint" ? Number(value) : value;
 }
 
-export function buildDonutData(rows: DashboardRow[]) {
-  const deckMap = new Map<string, { total: number; wins: number }>();
-  const opponentMap = new Map<string, { total: number; wins: number }>();
+function toSlices(rows: AggregateRow[]): DonutSlice[] {
+  return rows.map((row) => {
+    const total = bigintToNumber(row.total);
+    const wins = bigintToNumber(row.wins);
 
-  for (const row of rows) {
-    const deckName = row.myDeck.name;
-    const d = deckMap.get(deckName) ?? { total: 0, wins: 0 };
-    d.total += 1;
-    d.wins += row.isMatchWin ? 1 : 0;
-    deckMap.set(deckName, d);
+    return {
+      name: row.name,
+      value: total,
+      wins,
+      rate: total === 0 ? 0 : Math.round((wins / total) * 100),
+    };
+  });
+}
 
-    const o = opponentMap.get(row.opponentDeckName) ?? { total: 0, wins: 0 };
-    o.total += 1;
-    o.wins += row.isMatchWin ? 1 : 0;
-    opponentMap.set(row.opponentDeckName, o);
+function buildPlayedAtSql(opts: FilterOptions) {
+  const { period, from, to } = opts;
+  const clauses: Prisma.Sql[] = [];
+
+  if (period === "custom") {
+    if (from) {
+      clauses.push(Prisma.sql`m."playedAt" >= ${new Date(`${from}T00:00:00`)}`);
+    }
+
+    if (to) {
+      const end = new Date(`${to}T00:00:00`);
+      end.setDate(end.getDate() + 1);
+      clauses.push(Prisma.sql`m."playedAt" < ${end}`);
+    }
+  } else if (period === "7d" || period === "30d") {
+    const now = new Date();
+    const cutoff = new Date(now);
+    cutoff.setDate(now.getDate() - (period === "7d" ? 7 : 30));
+    clauses.push(Prisma.sql`m."playedAt" >= ${cutoff}`);
   }
 
-  const toSlices = (map: Map<string, { total: number; wins: number }>): DonutSlice[] =>
-    [...map.entries()]
-      .sort((a, b) => b[1].total - a[1].total)
-      .map(([name, s]) => ({
-        name,
-        value: s.total,
-        wins: s.wins,
-        rate: s.total === 0 ? 0 : Math.round((s.wins / s.total) * 100),
-      }));
+  return clauses;
+}
+
+function buildWhereSql(userId: string, opts: FilterOptions) {
+  const clauses = [Prisma.sql`m."userId" = ${userId}`, ...buildPlayedAtSql(opts)];
+  return Prisma.sql`WHERE ${Prisma.join(clauses, " AND ")}`;
+}
+
+export async function getDashboardData(userId: string, opts: FilterOptions) {
+  const whereSql = buildWhereSql(userId, opts);
+
+  const [totalResult, myDeckRows, opponentRows] = await Promise.all([
+    prisma.$queryRaw<{ total: bigint | number }[]>(Prisma.sql`
+      SELECT COUNT(*)::bigint AS total
+      FROM "match_results" m
+      ${whereSql}
+    `),
+    prisma.$queryRaw<AggregateRow[]>(Prisma.sql`
+      SELECT
+        d."name" AS name,
+        COUNT(*)::bigint AS total,
+        SUM(CASE WHEN m."isMatchWin" THEN 1 ELSE 0 END)::bigint AS wins
+      FROM "match_results" m
+      INNER JOIN "decks" d ON d."id" = m."myDeckId"
+      ${whereSql}
+      GROUP BY d."name"
+      ORDER BY total DESC, d."name" ASC
+    `),
+    prisma.$queryRaw<AggregateRow[]>(Prisma.sql`
+      SELECT
+        m."opponentDeckName" AS name,
+        COUNT(*)::bigint AS total,
+        SUM(CASE WHEN m."isMatchWin" THEN 1 ELSE 0 END)::bigint AS wins
+      FROM "match_results" m
+      ${whereSql}
+      GROUP BY m."opponentDeckName"
+      ORDER BY total DESC, m."opponentDeckName" ASC
+    `),
+  ]);
 
   return {
-    myDeckSlices: toSlices(deckMap),
-    opponentSlices: toSlices(opponentMap),
-    totalMatches: rows.length,
+    totalMatches: totalResult[0] ? bigintToNumber(totalResult[0].total) : 0,
+    myDeckSlices: toSlices(myDeckRows),
+    opponentSlices: toSlices(opponentRows),
   };
 }
