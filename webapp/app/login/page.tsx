@@ -1,6 +1,3 @@
-import Link from "next/link";
-
-import { AppShell } from "@/components/app-shell";
 import { isSupabaseConfigured } from "@/lib/env";
 
 import { signInWithGoogle } from "./actions";
@@ -23,36 +20,35 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = errorParam ? errorMessages[errorParam] : undefined;
 
   return (
-    <AppShell title="로그인">
-      <section className="max-w-lg rounded-3xl border border-line bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-semibold">Google 로그인</h2>
-        {!isSupabaseConfigured ? (
-          <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
-            `.env.local`에 Supabase 설정이 없어 로그인 버튼을 비활성화했습니다.
-          </div>
-        ) : null}
-        {errorMessage ? (
-          <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
-            {errorMessage}
-          </div>
-        ) : null}
-        <form action={signInWithGoogle} className="mt-6">
-          <input type="hidden" name="next" value={nextParam} />
-          <button
-            type="submit"
-            disabled={!isSupabaseConfigured}
-            className="w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-neutral-400"
-          >
-            Google로 로그인
-          </button>
-        </form>
-        <Link
-          href="/"
-          className="mt-4 inline-flex text-sm font-medium text-neutral-600 underline-offset-4 hover:underline"
-        >
-          홈으로 돌아가기
-        </Link>
+    <main className="flex min-h-screen items-center justify-center bg-paper px-6">
+      <section className="w-full max-w-sm text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
+          TCG Match Tracker
+        </p>
+        <h1 className="mt-3 text-2xl font-semibold text-ink">로그인</h1>
+        <div className="mt-8 rounded-3xl border border-line bg-white p-6 shadow-sm">
+          {!isSupabaseConfigured ? (
+            <div className="mb-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
+              Supabase 설정이 없어 로그인이 비활성화되었습니다.
+            </div>
+          ) : null}
+          {errorMessage ? (
+            <div className="mb-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
+              {errorMessage}
+            </div>
+          ) : null}
+          <form action={signInWithGoogle}>
+            <input type="hidden" name="next" value={nextParam} />
+            <button
+              type="submit"
+              disabled={!isSupabaseConfigured}
+              className="w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-neutral-400"
+            >
+              Google로 로그인
+            </button>
+          </form>
+        </div>
       </section>
-    </AppShell>
+    </main>
   );
 }

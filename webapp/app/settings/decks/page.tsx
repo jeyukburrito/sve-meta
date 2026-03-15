@@ -75,7 +75,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 required
                 maxLength={60}
                 className="rounded-2xl border border-line px-4 py-3"
-                placeholder="로얄 미드레인지"
+                placeholder="예: 어그로 덱"
               />
             </label>
             <ColorPicker name="color" />

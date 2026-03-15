@@ -11,6 +11,10 @@ function matchesRedirect(type: "error" | "message", value: string) {
   return `/matches?${type}=${encodeURIComponent(value)}`;
 }
 
+function newMatchRedirect(type: "error" | "message", value: string) {
+  return `/matches/new?${type}=${encodeURIComponent(value)}`;
+}
+
 function editRedirect(matchId: string, type: "error" | "message", value: string) {
   return `/matches/${matchId}/edit?${type}=${encodeURIComponent(value)}`;
 }
@@ -57,17 +61,17 @@ export async function createMatchResult(formData: FormData) {
   const parsed = parseMatchForm(formData);
 
   if (!parsed.success) {
-    redirect(matchesRedirect("error", "입력값을 확인해 주세요."));
+    redirect(newMatchRedirect("error", "입력값을 확인해 주세요."));
   }
 
   const ownedDeck = await ensureOwnedActiveDeck(user.id, parsed.data.myDeckId);
 
   if (!ownedDeck) {
-    redirect(matchesRedirect("error", "선택한 덱을 찾을 수 없거나 비활성 상태입니다."));
+    redirect(newMatchRedirect("error", "선택한 덱을 찾을 수 없거나 비활성 상태입니다."));
   }
 
   if (ownedDeck.gameId !== parsed.data.gameId) {
-    redirect(matchesRedirect("error", "선택한 카드 게임과 덱이 일치하지 않습니다."));
+    redirect(newMatchRedirect("error", "선택한 카드 게임과 덱이 일치하지 않습니다."));
   }
 
   const score = deriveScore(parsed.data.matchFormat, parsed.data.result);
