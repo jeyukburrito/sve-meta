@@ -79,6 +79,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
         className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
       >
         <input type="hidden" name="matchId" value={match.id} />
+        <input type="hidden" name="tournamentSessionId" value={match.tournamentSessionId ?? ""} />
         <input type="hidden" name="tournamentPhase" value={match.tournamentPhase ?? ""} />
         {errorMessage ? (
           <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">

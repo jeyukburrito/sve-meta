@@ -17,6 +17,7 @@ model User {
   games      Game[]
   decks      Deck[]
   matches    MatchResult[]
+  tournaments TournamentSession[]
   tags       Tag[]
 
   @@map("users")
@@ -49,6 +50,7 @@ model Deck {
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   game       Game          @relation(fields: [gameId], references: [id], onDelete: Restrict)
   matches    MatchResult[]
+  tournaments TournamentSession[]
 
   @@unique([userId, gameId, name])
   @@index([userId, gameId, isActive])
@@ -59,6 +61,7 @@ model MatchResult {
   id               String           @id @default(uuid()) @db.Uuid
   userId           String           @db.Uuid
   myDeckId         String           @db.Uuid
+  tournamentSessionId String?       @db.Uuid
   playedAt         DateTime
   opponentDeckName String
   eventCategory    EventCategory    @default(friendly)
@@ -74,13 +77,33 @@ model MatchResult {
   updatedAt        DateTime         @updatedAt
   user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   myDeck           Deck             @relation(fields: [myDeckId], references: [id], onDelete: Restrict)
+  tournamentSession TournamentSession? @relation(fields: [tournamentSessionId], references: [id], onDelete: SetNull)
   tags             MatchResultTag[]
 
   @@index([userId, playedAt])
   @@index([userId, opponentDeckName])
   @@index([userId, playOrder])
   @@index([userId, matchFormat])
+  @@index([userId, tournamentSessionId])
   @@map("match_results")
+}
+
+model TournamentSession {
+  id            String           @id @default(uuid()) @db.Uuid
+  userId        String           @db.Uuid
+  myDeckId      String           @db.Uuid
+  eventCategory EventCategory
+  playedOn      DateTime
+  endedAt       DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  myDeck        Deck             @relation(fields: [myDeckId], references: [id], onDelete: Cascade)
+  matches       MatchResult[]
+
+  @@index([userId, playedOn, eventCategory])
+  @@index([userId, endedAt])
+  @@map("tournament_sessions")
 }
 
 model Tag {

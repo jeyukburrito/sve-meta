@@ -5,11 +5,16 @@ type MatchRow = {
   opponentDeckName: string;
   eventCategory: string;
   tournamentPhase: string | null;
+  tournamentSessionId: string | null;
   matchFormat: string;
   isMatchWin: boolean;
   playOrder: string;
   didChoosePlayOrder: boolean;
   memo: string | null;
+  tournamentSession: {
+    id: string;
+    endedAt: Date | null;
+  } | null;
   myDeckId: string;
   myDeck: {
     id: string;
@@ -27,6 +32,8 @@ export type TournamentGroup = {
   gameName: string;
   firstDeckId: string;
   firstGameId: string;
+  tournamentSessionId: string | null;
+  endedAt: Date | null;
   matches: MatchRow[];
   hasSwiss: boolean;
   hasElimination: boolean;
@@ -47,7 +54,8 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
     }
 
     const dateStr = match.playedAt.toISOString().slice(0, 10);
-    const key = `${dateStr}_${match.eventCategory}_${match.myDeck.name}`;
+    const key =
+      match.tournamentSessionId ?? `${dateStr}_${match.eventCategory}_${match.myDeck.name}`;
 
     if (!tournamentMap.has(key)) {
       tournamentMap.set(key, {
@@ -58,6 +66,8 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
         gameName: match.myDeck.game.name,
         firstDeckId: match.myDeck.id,
         firstGameId: match.myDeck.gameId,
+        tournamentSessionId: match.tournamentSessionId,
+        endedAt: match.tournamentSession?.endedAt ?? null,
         matches: [],
         hasSwiss: false,
         hasElimination: false,
@@ -66,6 +76,7 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
 
     const group = tournamentMap.get(key)!;
     group.matches.push(match);
+    group.endedAt = group.endedAt ?? match.tournamentSession?.endedAt ?? null;
 
     if (match.tournamentPhase === "elimination") {
       group.hasElimination = true;

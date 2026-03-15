@@ -19,35 +19,52 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
   const wins = group.matches.filter((m) => m.isMatchWin).length;
   const losses = group.matches.length - wins;
   const showPhaseLabels = group.hasSwiss && group.hasElimination;
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const isEnded = Boolean(group.endedAt);
   const groupDateStr = group.date.toISOString().slice(0, 10);
-  const isToday = todayStr === groupDateStr;
+  const nextSwissRound =
+    group.matches.filter((match) => match.tournamentPhase !== "elimination").length + 1;
+  const nextEliminationRound =
+    group.matches.filter((match) => match.tournamentPhase === "elimination").length + 1;
 
   // 예선/본선별 라운드 넘버링을 위한 카운터
   let swissIdx = 0;
   let elimIdx = 0;
 
   return (
-    <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
+    <article
+      className={`rounded-3xl border p-5 shadow-sm ${
+        isEnded ? "border-line bg-line/10" : "border-line bg-surface"
+      }`}
+    >
       {/* 대회 헤더 */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
               {EVENT_LABELS[group.eventCategory] ?? group.eventCategory}
             </span>
             <span className="text-sm text-muted">{formatRelativeDate(group.date)}</span>
+            {isEnded ? (
+              <span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs font-semibold text-muted">
+                대회 종료
+              </span>
+            ) : null}
           </div>
           <h2 className="mt-1 text-lg font-semibold">{group.deckName}</h2>
           <p className="text-sm text-muted">{group.gameName}</p>
+          {isEnded ? (
+            <p className="mt-2 text-sm text-muted">
+              종료된 대회입니다. 기록은 나중에도 수정할 수 있습니다.
+            </p>
+          ) : null}
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold">
+          <p className="text-lg font-semibold leading-none">
             <span className="text-success">{wins}</span>
             <span className="mx-0.5 text-muted">-</span>
             <span className="text-danger">{losses}</span>
           </p>
-          <p className="text-xs text-muted">{group.matches.length}R</p>
+          <p className="mt-1 text-xs text-muted">{group.matches.length}R</p>
         </div>
       </div>
 
@@ -86,7 +103,7 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                   </div>
                 ) : null}
 
-                <div className="relative flex gap-4 pb-4 last:pb-0">
+                <div className="relative flex items-start gap-4 pb-4 last:pb-0">
                   {/* 도트 */}
                   <div className="relative z-10 mt-1.5 shrink-0">
                     <div
@@ -108,7 +125,7 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                         <span className="font-medium">vs {match.opponentDeckName}</span>
                       </div>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold leading-none ${
                           match.isMatchWin
                             ? "bg-success/10 text-success"
                             : "bg-danger/10 text-danger"
@@ -152,7 +169,7 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
       </div>
 
       {/* 다음 라운드 추가 (오늘 대회만) */}
-      {isToday ? (
+      {!isEnded && group.tournamentSessionId ? (
         <div className="mt-3 ml-3 flex gap-4">
           <div className="relative z-10 mt-1 shrink-0">
             <div className="size-[11px] rounded-full border-2 border-dashed border-line bg-surface" />
@@ -163,12 +180,12 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
               date: groupDateStr,
               deckId: group.firstDeckId,
               gameId: group.firstGameId,
-              round: String(group.matches.length + 1),
               phase: group.hasElimination ? "elimination" : "swiss",
+              tournamentId: group.tournamentSessionId,
             }).toString()}`}
             className="text-sm font-medium text-accent hover:underline"
           >
-            + 라운드 추가
+            + {group.hasElimination ? `본선 라운드 ${nextEliminationRound}` : `예선 라운드 ${nextSwissRound}`} 추가
           </Link>
         </div>
       ) : null}

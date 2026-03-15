@@ -5,6 +5,7 @@ export const matchResultSchema = z
     playedAt: z.string().min(1),
     gameId: z.string().uuid(),
     myDeckId: z.string().uuid(),
+    tournamentSessionId: z.string().uuid().optional(),
     opponentDeckName: z.string().trim().min(1).max(120),
     eventCategory: z.enum(["friendly", "shop", "cs"]),
     tournamentPhase: z.enum(["swiss", "elimination"]).optional(),

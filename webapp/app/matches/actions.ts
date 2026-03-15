@@ -19,6 +19,14 @@ function editRedirect(matchId: string, type: "error" | "message", value: string)
   return `/matches/${matchId}/edit?${type}=${encodeURIComponent(value)}`;
 }
 
+function dateRangeForDay(value: string) {
+  const start = new Date(`${value}T00:00:00`);
+  const end = new Date(`${value}T00:00:00`);
+  end.setDate(end.getDate() + 1);
+
+  return { start, end };
+}
+
 async function ensureOwnedActiveDeck(userId: string, deckId: string) {
   return prisma.deck.findFirst({
     where: {
@@ -46,6 +54,7 @@ function parseMatchForm(formData: FormData) {
     playedAt: formData.get("playedAt"),
     gameId: formData.get("gameId"),
     myDeckId: formData.get("myDeckId"),
+    tournamentSessionId: formData.get("tournamentSessionId") || undefined,
     opponentDeckName: formData.get("opponentDeckName"),
     eventCategory: formData.get("eventCategory"),
     tournamentPhase: formData.get("tournamentPhase") || undefined,
@@ -56,6 +65,91 @@ function parseMatchForm(formData: FormData) {
     memo: formData.get("memo"),
     tagIds: [],
   });
+}
+
+async function resolveTournamentSession(params: {
+  userId: string;
+  myDeckId: string;
+  playedAt: string;
+  eventCategory: "shop" | "cs";
+  tournamentSessionId?: string;
+}) {
+  const { userId, myDeckId, playedAt, eventCategory, tournamentSessionId } = params;
+  const { start } = dateRangeForDay(playedAt);
+
+  if (tournamentSessionId) {
+    const existing = await prisma.tournamentSession.findFirst({
+      where: {
+        id: tournamentSessionId,
+        userId,
+        myDeckId,
+        eventCategory,
+      },
+      select: {
+        id: true,
+        endedAt: true,
+      },
+    });
+
+    if (!existing) {
+      return { ok: false as const, error: "이어지는 대회 세션을 찾을 수 없습니다." as const };
+    }
+
+    if (existing.endedAt) {
+      return {
+        ok: false as const,
+        error: "종료된 대회입니다. 기존 기록은 수정할 수 있지만 새 라운드는 추가할 수 없습니다." as const,
+      };
+    }
+
+    return { ok: true as const, sessionId: existing.id };
+  }
+
+  const created = await prisma.tournamentSession.create({
+    data: {
+      userId,
+      myDeckId,
+      eventCategory,
+      playedOn: start,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return { ok: true as const, sessionId: created.id };
+}
+
+async function buildNextTournamentRedirect(params: {
+  sessionId: string;
+  userId: string;
+  eventCategory: "shop" | "cs";
+  playedAt: string;
+  gameId: string;
+  myDeckId: string;
+  tournamentPhase: "swiss" | "elimination";
+}) {
+  const { sessionId, userId, eventCategory, playedAt, gameId, myDeckId, tournamentPhase } = params;
+  const phaseCount = await prisma.matchResult.count({
+    where: {
+      userId,
+      tournamentSessionId: sessionId,
+      tournamentPhase,
+    },
+  });
+
+  const sp = new URLSearchParams({
+    message: "record_created",
+    event: eventCategory,
+    date: playedAt,
+    gameId,
+    deckId: myDeckId,
+    round: String(phaseCount + 1),
+    phase: tournamentPhase,
+    tournamentId: sessionId,
+  });
+
+  return `/matches/new?${sp.toString()}`;
 }
 
 export async function createMatchResult(formData: FormData) {
@@ -77,11 +171,29 @@ export async function createMatchResult(formData: FormData) {
   }
 
   const score = deriveScore(parsed.data.matchFormat, parsed.data.result);
+  let tournamentSessionId: string | null = null;
+
+  if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
+    const resolved = await resolveTournamentSession({
+      userId: user.id,
+      myDeckId: parsed.data.myDeckId,
+      playedAt: parsed.data.playedAt,
+      eventCategory: parsed.data.eventCategory,
+      tournamentSessionId: parsed.data.tournamentSessionId,
+    });
+
+    if (!resolved.ok) {
+      redirect(newMatchRedirect("error", resolved.error));
+    }
+
+    tournamentSessionId = resolved.sessionId;
+  }
 
   await prisma.matchResult.create({
     data: {
       userId: user.id,
       myDeckId: parsed.data.myDeckId,
+      tournamentSessionId,
       playedAt: new Date(parsed.data.playedAt),
       opponentDeckName: parsed.data.opponentDeckName,
       eventCategory: parsed.data.eventCategory,
@@ -101,39 +213,24 @@ export async function createMatchResult(formData: FormData) {
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
+  revalidatePath("/matches/new");
 
   // 대회 모드: 저장 후 다음 라운드 입력으로 리다이렉트
-  if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
-    const phase = parsed.data.tournamentPhase ?? "swiss";
-
-    // playedAt은 "YYYY-MM-DD" 문자열 → 해당 날짜의 00:00:00 ~ 익일 00:00:00 범위로 조회
-    // new Date("YYYY-MM-DD") 단순 비교는 UTC/로컬 타임존 불일치로 카운트가 0이 되는 버그 유발
-    const dateStart = new Date(parsed.data.playedAt + "T00:00:00");
-    const dateEnd = new Date(parsed.data.playedAt + "T00:00:00");
-    dateEnd.setDate(dateEnd.getDate() + 1);
-
-    const phaseCount = await prisma.matchResult.count({
-      where: {
+  if (
+    tournamentSessionId &&
+    (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs")
+  ) {
+    redirect(
+      await buildNextTournamentRedirect({
+        sessionId: tournamentSessionId,
         userId: user.id,
-        myDeckId: parsed.data.myDeckId,
         eventCategory: parsed.data.eventCategory,
-        tournamentPhase: phase,
-        playedAt: {
-          gte: dateStart,
-          lt: dateEnd,
-        },
-      },
-    });
-    const sp = new URLSearchParams({
-      message: "record_created",
-      event: parsed.data.eventCategory,
-      date: parsed.data.playedAt,
-      gameId: parsed.data.gameId,
-      deckId: parsed.data.myDeckId,
-      round: String(phaseCount + 1),
-      phase,
-    });
-    redirect(`/matches/new?${sp.toString()}`);
+        playedAt: parsed.data.playedAt,
+        gameId: parsed.data.gameId,
+        myDeckId: parsed.data.myDeckId,
+        tournamentPhase: parsed.data.tournamentPhase ?? "swiss",
+      }),
+    );
   }
 
   redirect("/matches?message=record_created");
@@ -161,6 +258,7 @@ export async function updateMatchResult(formData: FormData) {
       },
       select: {
         id: true,
+        tournamentSessionId: true,
       },
     }),
   ]);
@@ -178,6 +276,25 @@ export async function updateMatchResult(formData: FormData) {
   }
 
   const score = deriveScore(parsed.data.matchFormat, parsed.data.result);
+  let tournamentSessionId = existingMatch.tournamentSessionId;
+
+  if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
+    const resolved = await resolveTournamentSession({
+      userId: user.id,
+      myDeckId: parsed.data.myDeckId,
+      playedAt: parsed.data.playedAt,
+      eventCategory: parsed.data.eventCategory,
+      tournamentSessionId: parsed.data.tournamentSessionId ?? existingMatch.tournamentSessionId ?? undefined,
+    });
+
+    if (!resolved.ok) {
+      redirect(editRedirect(matchId, "error", resolved.error));
+    }
+
+    tournamentSessionId = resolved.sessionId;
+  } else {
+    tournamentSessionId = null;
+  }
 
   const result = await prisma.matchResult.updateMany({
     where: {
@@ -186,6 +303,7 @@ export async function updateMatchResult(formData: FormData) {
     },
     data: {
       myDeckId: parsed.data.myDeckId,
+      tournamentSessionId,
       playedAt: new Date(parsed.data.playedAt),
       opponentDeckName: parsed.data.opponentDeckName,
       eventCategory: parsed.data.eventCategory,

@@ -27,8 +27,9 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   const continueDate = typeof params?.date === "string" ? params.date : undefined;
   const continueDeck = typeof params?.deckId === "string" ? params.deckId : undefined;
   const continueGame = typeof params?.gameId === "string" ? params.gameId : undefined;
-  const roundNumber = typeof params?.round === "string" ? parseInt(params.round, 10) : undefined;
-  const phase = typeof params?.phase === "string" ? params.phase : "swiss";
+  const continueTournamentId =
+    typeof params?.tournamentId === "string" ? params.tournamentId : undefined;
+  const phase = params?.phase === "elimination" ? "elimination" : "swiss";
   const isContinue = continueEvent === "shop" || continueEvent === "cs";
   const isElimination = phase === "elimination";
 
@@ -36,45 +37,92 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   const phaseLabel = isElimination ? "본선" : "예선";
 
   const today = continueDate ?? new Date().toISOString().slice(0, 10);
-  const decks = await prisma.deck.findMany({
-    where: {
-      userId: user.id,
-      isActive: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
-    include: {
-      game: {
-        select: {
-          name: true,
+  const [decks, continuedTournament, phaseCount] = await Promise.all([
+    prisma.deck.findMany({
+      where: {
+        userId: user.id,
+        isActive: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      include: {
+        game: {
+          select: {
+            name: true,
+          },
         },
       },
-    },
-  });
+    }),
+    continueTournamentId
+      ? prisma.tournamentSession.findFirst({
+          where: {
+            id: continueTournamentId,
+            userId: user.id,
+          },
+          select: {
+            id: true,
+            endedAt: true,
+          },
+        })
+      : Promise.resolve(null),
+    continueTournamentId
+      ? prisma.matchResult.count({
+          where: {
+            userId: user.id,
+            tournamentSessionId: continueTournamentId,
+            tournamentPhase: phase,
+          },
+        })
+      : Promise.resolve(0),
+  ]);
+  const isActiveTournament = Boolean(continuedTournament && !continuedTournament.endedAt);
+  const isEndedTournament = Boolean(continuedTournament?.endedAt);
+  const hasInvalidTournamentContinuation = Boolean(continueTournamentId && !continuedTournament);
+  const activeTournamentId =
+    continuedTournament && !continuedTournament.endedAt ? continuedTournament.id : null;
+  const roundNumber = isActiveTournament ? phaseCount + 1 : undefined;
 
   // 토너먼트 진행 링크 생성 (예선→본선 전환)
-  const eliminationUrl = isContinue
+  const eliminationUrl = isContinue && isActiveTournament
     ? `/matches/new?${new URLSearchParams({
         event: continueEvent!,
         date: continueDate ?? today,
         gameId: continueGame ?? "",
         deckId: continueDeck ?? "",
-        round: "1",
         phase: "elimination",
+        tournamentId: continueTournamentId ?? "",
       }).toString()}`
     : null;
+  const submitDisabled = decks.length === 0 || isEndedTournament || hasInvalidTournamentContinuation;
+  const submitLabel =
+    isContinue && roundNumber
+      ? `${phaseLabel} R${roundNumber} 저장`
+      : isEndedTournament || hasInvalidTournamentContinuation
+        ? "대회 종료됨"
+        : "결과 저장";
 
   return (
     <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
-      {isContinue && roundNumber ? (
+      {isContinue && activeTournamentId && roundNumber ? (
         <TournamentBanner
           eventLabel={eventLabel}
           phaseLabel={phaseLabel}
           roundNumber={roundNumber}
           isElimination={isElimination}
+          tournamentSessionId={activeTournamentId}
           eliminationUrl={eliminationUrl}
         />
+      ) : null}
+      {isContinue && (isEndedTournament || hasInvalidTournamentContinuation) ? (
+        <div className="mb-4 rounded-2xl border border-line bg-line/20 px-4 py-3 text-sm text-muted">
+          <p className="font-medium text-muted">대회 종료</p>
+          <p className="mt-1">
+            {isEndedTournament
+              ? "종료된 대회입니다. 기존 경기 기록은 수정할 수 있지만 새 라운드는 추가할 수 없습니다."
+              : "이어지는 대회 세션을 찾을 수 없습니다. 기록 목록에서 기존 대회를 확인해 주세요."}
+          </p>
+        </div>
       ) : null}
       <form
         action={createMatchResult}
@@ -85,7 +133,12 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             {errorMessage}
           </div>
         ) : null}
-        {isContinue ? <input type="hidden" name="tournamentPhase" value={phase} /> : null}
+        {isContinue && continueTournamentId ? (
+          <>
+            <input type="hidden" name="tournamentPhase" value={phase} />
+            <input type="hidden" name="tournamentSessionId" value={continueTournamentId} />
+          </>
+        ) : null}
         <EventCategorySelect defaultValue={continueEvent ?? "friendly"} />
         <label className="grid gap-2 text-sm font-medium">
           날짜
@@ -151,8 +204,8 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             </p>
           ) : null}
           <SubmitButton
-            label={isContinue ? `${phaseLabel} R${roundNumber ?? ""} 저장` : "결과 저장"}
-            disabled={decks.length === 0}
+            label={submitLabel}
+            disabled={submitDisabled}
           />
         </div>
       </form>

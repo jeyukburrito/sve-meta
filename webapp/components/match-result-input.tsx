@@ -37,7 +37,7 @@ export function MatchResultInput({
           <button
             type="button"
             onClick={() => setResult("win")}
-            className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
+            className={`rounded-2xl border px-4 py-3 text-base font-semibold transition-colors ${
               result === "win"
                 ? "border-accent bg-accent/10 text-accent"
                 : "border-line text-muted"
@@ -48,7 +48,7 @@ export function MatchResultInput({
           <button
             type="button"
             onClick={() => setResult("lose")}
-            className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
+            className={`rounded-2xl border px-4 py-3 text-base font-semibold transition-colors ${
               result === "lose"
                 ? "border-danger bg-danger/10 text-danger"
                 : "border-line text-muted"

@@ -55,8 +55,9 @@ export function buildMatchWhere(userId: string, filters: MatchFilters): Prisma.M
   };
 }
 
-export async function listMatchesForUser(userId: string, filters: MatchFilters, page = 1) {
-  const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+export async function listMatchesForUser(userId: string, filters: MatchFilters, page?: number) {
+  const safePage =
+    page !== undefined && Number.isFinite(page) && page > 0 ? Math.floor(page) : undefined;
 
   return prisma.matchResult.findMany({
     where: buildMatchWhere(userId, filters),
@@ -64,8 +65,12 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters, 
       { playedAt: "desc" },
       { createdAt: "desc" },
     ],
-    skip: (safePage - 1) * MATCHES_PAGE_SIZE,
-    take: MATCHES_PAGE_SIZE,
+    ...(safePage
+      ? {
+          skip: (safePage - 1) * MATCHES_PAGE_SIZE,
+          take: MATCHES_PAGE_SIZE,
+        }
+      : {}),
     include: {
       myDeck: {
         select: {
@@ -77,6 +82,12 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters, 
               name: true,
             },
           },
+        },
+      },
+      tournamentSession: {
+        select: {
+          id: true,
+          endedAt: true,
         },
       },
     },
