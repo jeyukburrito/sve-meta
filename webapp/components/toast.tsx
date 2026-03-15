@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const MESSAGE_MAP: Record<string, string> = {
   record_created: "대전 결과를 저장했습니다.",
@@ -22,28 +22,36 @@ export function Toast() {
   const searchParams = useSearchParams();
   const [text, setText] = useState<string | null>(null);
   const [dismissing, setDismissing] = useState(false);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const removeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismiss = useCallback(() => {
+    setDismissing(true);
+    removeTimerRef.current = setTimeout(() => {
+      setText(null);
+      setDismissing(false);
+    }, FADE_OUT_MS);
+  }, []);
 
   useEffect(() => {
     const msg = searchParams.get("message");
-    if (msg && MESSAGE_MAP[msg]) {
-      setText(MESSAGE_MAP[msg]);
-      setDismissing(false);
-      const url = new URL(window.location.href);
-      url.searchParams.delete("message");
-      window.history.replaceState({}, "", url.toString());
+    if (!msg || !MESSAGE_MAP[msg]) return;
 
-      const fadeTimer = setTimeout(() => setDismissing(true), VISIBLE_MS);
-      const removeTimer = setTimeout(() => {
-        setText(null);
-        setDismissing(false);
-      }, VISIBLE_MS + FADE_OUT_MS);
+    // 이전 타이머 정리
+    if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+    if (removeTimerRef.current) clearTimeout(removeTimerRef.current);
 
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(removeTimer);
-      };
-    }
-  }, [searchParams]);
+    setText(MESSAGE_MAP[msg]);
+    setDismissing(false);
+
+    // URL에서 message 파라미터 제거
+    const url = new URL(window.location.href);
+    url.searchParams.delete("message");
+    window.history.replaceState({}, "", url.toString());
+
+    // 자동 사라짐 타이머
+    fadeTimerRef.current = setTimeout(dismiss, VISIBLE_MS);
+  }, [searchParams, dismiss]);
 
   if (!text) return null;
 
