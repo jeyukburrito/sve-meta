@@ -39,7 +39,7 @@ export function TournamentBanner({
             type="button"
             onClick={() => {
               if (window.confirm("대회 기록 입력을 종료하시겠습니까?")) {
-                window.location.href = "/matches";
+                window.location.href = "/matches?message=tournament_ended";
               }
             }}
             className="rounded-full border border-line px-3 py-1 text-xs font-medium text-muted transition-colors hover:bg-line"

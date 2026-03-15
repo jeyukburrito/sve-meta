@@ -7,6 +7,7 @@ const MESSAGE_MAP: Record<string, string> = {
   record_created: "대전 결과를 저장했습니다.",
   record_updated: "대전 결과를 수정했습니다.",
   record_deleted: "대전 결과를 삭제했습니다.",
+  tournament_ended: "대회 기록 입력을 종료했습니다.",
   "덱을 추가했습니다.": "덱을 추가했습니다.",
   "덱을 다시 활성화했습니다.": "덱을 다시 활성화했습니다.",
   "덱을 비활성화했습니다.": "덱을 비활성화했습니다.",

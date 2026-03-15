@@ -65,7 +65,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="gameId"
             defaultValue={gameIdQuery}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
             <option value="">카드게임 전체</option>
             {games.map((game) => (
@@ -77,7 +77,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="deckId"
             defaultValue={deckIdQuery}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
             <option value="">내 덱 전체</option>
             {decks.map((deck) => (
@@ -89,7 +89,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="format"
             defaultValue={formatQuery}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
             <option value="">형식 전체</option>
             <option value="bo1">BO1</option>
@@ -98,7 +98,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="event"
             defaultValue={eventQuery}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
             <option value="">분류 전체</option>
             <option value="friendly">친선전</option>
