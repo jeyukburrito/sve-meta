@@ -23,20 +23,6 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const gameIdQuery = filters.gameId;
   const deckIdQuery = filters.deckId;
   const formatQuery = filters.format;
-  const exportParams = new URLSearchParams();
-
-  if (opponentQuery) {
-    exportParams.set("opponent", opponentQuery);
-  }
-  if (gameIdQuery) {
-    exportParams.set("gameId", gameIdQuery);
-  }
-  if (deckIdQuery) {
-    exportParams.set("deckId", deckIdQuery);
-  }
-  if (formatQuery) {
-    exportParams.set("format", formatQuery);
-  }
 
   const [games, decks, rows] = await Promise.all([
     prisma.game.findMany({
@@ -68,15 +54,6 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   return (
     <AppShell title="기록 목록">
       <section className="rounded-3xl border border-line bg-white p-5 shadow-sm">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-neutral-500">현재 필터 기준으로 CSV 다운로드가 가능합니다.</p>
-          <a
-            href={`/matches/export${exportParams.toString() ? `?${exportParams.toString()}` : ""}`}
-            className="inline-flex rounded-full border border-line px-4 py-2 text-sm font-medium"
-          >
-            CSV 내보내기
-          </a>
-        </div>
         <form className="grid gap-3 md:grid-cols-4">
           <input
             name="opponent"
