@@ -28,7 +28,6 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const filters = parseMatchFilters(params);
-  const opponentQuery = filters.opponent;
   const gameIdQuery = filters.gameId;
   const deckIdQuery = filters.deckId;
   const formatQuery = filters.format;
@@ -48,7 +47,6 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const buildPageHref = (page: number) => {
     const query = new URLSearchParams();
 
-    if (opponentQuery) query.set("opponent", opponentQuery);
     if (gameIdQuery) query.set("gameId", gameIdQuery);
     if (deckIdQuery) query.set("deckId", deckIdQuery);
     if (formatQuery) query.set("format", formatQuery);
@@ -63,13 +61,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   return (
     <AppShell title="기록 목록" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
-        <form className="grid gap-3 md:grid-cols-5">
-          <input
-            name="opponent"
-            defaultValue={opponentQuery}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            placeholder="상대 덱 검색"
-          />
+        <form className="grid gap-3 md:grid-cols-4">
           <AutoSubmitSelect
             name="gameId"
             defaultValue={gameIdQuery}
