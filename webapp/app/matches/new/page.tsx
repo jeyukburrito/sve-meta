@@ -1,11 +1,10 @@
-import Link from "next/link";
-
 import { AppShell } from "@/components/app-shell";
 import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
 import { SubmitButton } from "@/components/submit-button";
+import { TournamentBanner } from "@/components/tournament-banner";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -69,29 +68,13 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   return (
     <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       {isContinue && roundNumber ? (
-        <div className="mb-4 rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-accent">
-              {eventLabel} {phaseLabel} 라운드 {roundNumber} 입력 중
-            </span>
-            <div className="flex gap-2">
-              {!isElimination && eliminationUrl ? (
-                <Link
-                  href={eliminationUrl}
-                  className="rounded-full border border-accent/30 px-3 py-1 text-xs font-medium text-accent transition-colors hover:bg-accent/10"
-                >
-                  본선 진행
-                </Link>
-              ) : null}
-              <Link
-                href="/matches"
-                className="rounded-full border border-line px-3 py-1 text-xs font-medium text-muted transition-colors hover:bg-line"
-              >
-                대회 종료
-              </Link>
-            </div>
-          </div>
-        </div>
+        <TournamentBanner
+          eventLabel={eventLabel}
+          phaseLabel={phaseLabel}
+          roundNumber={roundNumber}
+          isElimination={isElimination}
+          eliminationUrl={eliminationUrl}
+        />
       ) : null}
       <form
         action={createMatchResult}

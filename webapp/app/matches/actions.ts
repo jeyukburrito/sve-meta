@@ -105,12 +105,23 @@ export async function createMatchResult(formData: FormData) {
   // 대회 모드: 저장 후 다음 라운드 입력으로 리다이렉트
   if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
     const phase = parsed.data.tournamentPhase ?? "swiss";
-    const todayCount = await prisma.matchResult.count({
+
+    // playedAt은 "YYYY-MM-DD" 문자열 → 해당 날짜의 00:00:00 ~ 익일 00:00:00 범위로 조회
+    // new Date("YYYY-MM-DD") 단순 비교는 UTC/로컬 타임존 불일치로 카운트가 0이 되는 버그 유발
+    const dateStart = new Date(parsed.data.playedAt + "T00:00:00");
+    const dateEnd = new Date(parsed.data.playedAt + "T00:00:00");
+    dateEnd.setDate(dateEnd.getDate() + 1);
+
+    const phaseCount = await prisma.matchResult.count({
       where: {
         userId: user.id,
+        myDeckId: parsed.data.myDeckId,
         eventCategory: parsed.data.eventCategory,
         tournamentPhase: phase,
-        playedAt: new Date(parsed.data.playedAt),
+        playedAt: {
+          gte: dateStart,
+          lt: dateEnd,
+        },
       },
     });
     const sp = new URLSearchParams({
@@ -119,7 +130,7 @@ export async function createMatchResult(formData: FormData) {
       date: parsed.data.playedAt,
       gameId: parsed.data.gameId,
       deckId: parsed.data.myDeckId,
-      round: String(todayCount + 1),
+      round: String(phaseCount + 1),
       phase,
     });
     redirect(`/matches/new?${sp.toString()}`);
