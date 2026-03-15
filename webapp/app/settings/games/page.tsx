@@ -50,7 +50,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                 required
                 maxLength={60}
                 className="rounded-2xl border border-line px-4 py-3"
-                placeholder="Shadowverse EVOLVE"
               />
             </label>
             <div>

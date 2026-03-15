@@ -14,8 +14,8 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Shadowverse EVOLVE Match Tracker",
-  description: "개인용 섀도우버스 이볼브 대전 기록 및 통계 웹앱",
+  title: "TCG Match Tracker",
+  description: "개인용 TCG 대전 기록 및 통계 웹앱",
 };
 
 export default function RootLayout({
