@@ -60,9 +60,10 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters, 
 
   return prisma.matchResult.findMany({
     where: buildMatchWhere(userId, filters),
-    orderBy: {
-      playedAt: "desc",
-    },
+    orderBy: [
+      { playedAt: "desc" },
+      { createdAt: "desc" },
+    ],
     skip: (safePage - 1) * MATCHES_PAGE_SIZE,
     take: MATCHES_PAGE_SIZE,
     include: {

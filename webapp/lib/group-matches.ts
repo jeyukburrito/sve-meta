@@ -1,6 +1,7 @@
 type MatchRow = {
   id: string;
   playedAt: Date;
+  createdAt: Date;
   opponentDeckName: string;
   eventCategory: string;
   tournamentPhase: string | null;
@@ -73,9 +74,9 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
     }
   }
 
-  // 대회 그룹 내 매치를 생성순 정렬 (라운드 순)
+  // 대회 그룹 내 매치를 생성순 정렬 (라운드 순 = 입력 순)
   for (const group of tournamentMap.values()) {
-    group.matches.sort((a, b) => a.playedAt.getTime() - b.playedAt.getTime() || a.id.localeCompare(b.id));
+    group.matches.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
 
   const items: DisplayItem[] = [];

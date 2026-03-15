@@ -19,6 +19,9 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
   const wins = group.matches.filter((m) => m.isMatchWin).length;
   const losses = group.matches.length - wins;
   const showPhaseLabels = group.hasSwiss && group.hasElimination;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const groupDateStr = group.date.toISOString().slice(0, 10);
+  const isToday = todayStr === groupDateStr;
 
   // 예선/본선별 라운드 넘버링을 위한 카운터
   let swissIdx = 0;
@@ -148,25 +151,27 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
         </div>
       </div>
 
-      {/* 다음 라운드 추가 */}
-      <div className="mt-3 ml-3 flex gap-4">
-        <div className="relative z-10 mt-1 shrink-0">
-          <div className="size-[11px] rounded-full border-2 border-dashed border-line bg-surface" />
+      {/* 다음 라운드 추가 (오늘 대회만) */}
+      {isToday ? (
+        <div className="mt-3 ml-3 flex gap-4">
+          <div className="relative z-10 mt-1 shrink-0">
+            <div className="size-[11px] rounded-full border-2 border-dashed border-line bg-surface" />
+          </div>
+          <Link
+            href={`/matches/new?${new URLSearchParams({
+              event: group.eventCategory,
+              date: groupDateStr,
+              deckId: group.firstDeckId,
+              gameId: group.firstGameId,
+              round: String(group.matches.length + 1),
+              phase: group.hasElimination ? "elimination" : "swiss",
+            }).toString()}`}
+            className="text-sm font-medium text-accent hover:underline"
+          >
+            + 라운드 추가
+          </Link>
         </div>
-        <Link
-          href={`/matches/new?${new URLSearchParams({
-            event: group.eventCategory,
-            date: group.date.toISOString().slice(0, 10),
-            deckId: group.firstDeckId,
-            gameId: group.firstGameId,
-            round: String(group.matches.length + 1),
-            phase: group.hasElimination ? "elimination" : "swiss",
-          }).toString()}`}
-          className="text-sm font-medium text-accent hover:underline"
-        >
-          + 라운드 추가
-        </Link>
-      </div>
+      ) : null}
     </article>
   );
 }
