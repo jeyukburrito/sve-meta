@@ -43,7 +43,7 @@ Phase 2 note:
 ### Phase 4: QA and Release
 - [ ] Restrict access to approved accounts
 - [ ] Seed test dataset
-- [ ] Production env vars + Vercel deploy
+- [x] Production env vars + Vercel deploy
 
 ## Decisions Log
 | Date | Decision | By |
@@ -66,10 +66,16 @@ Phase 2 note:
 | 2026-03-14 | Applied follow-up review fixes: delete confirmation, safer match update, generic shell branding, game rename/delete | Codex CLI |
 | 2026-03-15 | Simplified match entry to date/game/deck/opponent/format/result/play order/play-order choice and removed event type | Codex CLI |
 | 2026-03-15 | Added CSV export route with shared match filters and a minimal Vercel deployment guide | Codex CLI |
+| 2026-03-15 | Added event category + tournament phase support for shop/CS flows | Codex CLI / Claude Code |
+| 2026-03-15 | Moved CSV export into settings and made profile reachable from avatar-only entry | Codex CLI / Claude Code |
+| 2026-03-15 | Added account deletion flow using Supabase admin client | Codex CLI |
+| 2026-03-15 | Optimized auth/profile sync, match pagination, dashboard DB aggregation, and Prisma postinstall generate | Codex CLI |
+| 2026-03-15 | Applied production migration for `eventCategory` and stabilized Vercel build/runtime issues | Codex CLI |
 
 ## Code Review
 - 2026-03-13: Phase 0–1 검수 완료 → `REVIEW_2026-03-13.md` 참조. HIGH 1건(users INSERT RLS)은 반영 완료.
 - 2026-03-14 (1차): Phase 2 중간 검수 → `REVIEW_2026-03-14.md` 참조. HIGH 1건(name/value 누락)은 반영 완료.
 - 2026-03-14 (2차): Phase 2–3 종합 검수 → `REVIEW_2026-03-14_phase2.md` 참조. HIGH 1건과 주요 MID 항목(delete 확인, updateMany 전환, 헤더 일반화, Game 수정/삭제)은 반영 완료.
+- 2026-03-15: 배포 이슈 대응 후 수동 검수 수행. `lint` / `next build --debug` 기준으로 event category, tournament phase, profile delete, dashboard raw query, pagination 변경 검증 완료.
 
 ## Blockers

@@ -1,5 +1,88 @@
 # Webapp 개발 로그
 
+## 2026-03-15: UI/UX 개선 Phase 2 및 마이그레이션 적용
+
+### 프로덕션 마이그레이션
+| 마이그레이션 | 내용 | 상태 |
+|-------------|------|------|
+| `20260315180000_add_tournament_phase` | `TournamentPhase` 열거형 추가, `match_results.tournamentPhase` 컬럼 추가, 기존 shop/cs 데이터 `swiss` 백필, CHECK 제약 적용 | 적용 완료 |
+
+- 오류 원인: `prisma.matchResult.findMany()` 호출 시 `match_results.tournamentPhase` 컬럼 미존재 (P2022)
+- 조치: `npx prisma migrate deploy` 로 프로덕션 DB에 직접 적용
+
+### tournament phase 기능
+| 항목 | 내용 |
+|------|------|
+| 신규 필드 | `tournamentPhase: TournamentPhase?` — `swiss` / `elimination` |
+| 적용 범위 | `eventCategory = shop / cs` 인 경기에만 필수, `friendly` 는 NULL |
+| 백필 | 기존 shop/cs 경기 → `swiss` 자동 설정 |
+| DB 제약 | `chk_tournament_phase_category` CHECK 제약으로 카테고리-단계 정합성 강제 |
+
+### UI/UX 개선
+| 항목 | 변경 내용 |
+|------|----------|
+| 다크모드 | 하드코딩된 `dark:` 클래스 제거 → Tailwind 시스템 테마 상속으로 통일 |
+| 토스트 위치 | 하단 중앙 → 상단 중앙으로 이동 (하단 네비와 겹침 방지) |
+| 토스트 버그 | 토스트 메시지가 페이지 전환 없이 중복 노출되던 문제 수정 |
+| 승패 배지 | `text-xs` → `text-sm`, padding 확대로 가독성 개선 |
+| EventCategorySelect | `/matches/new`, `/matches/[id]/edit` 에서 동일 컴포넌트 재사용으로 통일 |
+| 삭제/수정 버튼 순서 | 삭제 버튼을 수정 버튼 우측으로 이동 (파괴적 액션 노출 최소화) |
+
+### README 전면 개편
+- 프로젝트 소개, 기술 스택, 로컬 셋업 절차, 환경변수 목록, 배포 가이드로 구조 재편
+- 기존 내부 개발 메모 형식에서 외부 공개 가능한 문서 수준으로 격상
+
+---
+
+## 2026-03-15: 배포 안정화 및 백엔드 최적화
+
+### 배포/운영 이슈 대응
+| 이슈 | 원인 | 조치 |
+|------|------|------|
+| Google 로그인 시 `localhost` 리다이렉트 | Supabase / OAuth URL 설정이 로컬 기준 | 배포 URL 기준으로 Site URL / Redirect URL 재설정 |
+| Vercel에서 Session mode 연결 수 초과 | `DATABASE_URL`이 session pooler 기준 | Vercel runtime을 transaction pooler(`:6543`, `pgbouncer=true`, `connection_limit=1`) 기준으로 안내 |
+| `match_results.eventCategory` 누락 | 코드 배포 후 DB migration 미적용 | `20260315163000_add_event_category` migration production 반영 |
+| Dashboard raw query `uuid = text` 오류 | `$queryRaw` 파라미터 타입 불일치 | `CAST(${userId} AS uuid)` 적용 |
+| Vercel build 시 `tournamentPhase` 타입 누락 | install 단계 Prisma client stale 가능성 | `package.json`에 `postinstall: prisma generate` 추가 |
+
+### 백엔드 최적화
+| 파일 | 변경 내용 |
+|------|----------|
+| `lib/auth.ts` | 매 요청 `upsert` 제거, `createMany(skipDuplicates)`로 최소화 |
+| `lib/matches.ts` | `/matches` 페이지네이션 (`MATCHES_PAGE_SIZE=30`), count 분리, filter option helper 추가 |
+| `app/matches/page.tsx` | 목록 조회 30건 단위, 이전/다음 페이지 링크 추가 |
+| `lib/dashboard.ts` | 메모리 집계 제거, DB raw query 기반 count / group-by 집계로 전환 |
+| `app/dashboard/page.tsx` | 전체 경기 행 조회 제거, 집계 결과만 렌더링 |
+| `app/settings/export/page.tsx` | 공통 filter option helper 사용 |
+
+### 기능 변경
+| 파일 | 변경 내용 |
+|------|----------|
+| `app/settings/export/page.tsx` | CSV 내보내기를 설정 메뉴로 이동 |
+| `app/settings/profile/page.tsx` | 회원 탈퇴 버튼 및 경고 문구 추가 |
+| `app/settings/profile/actions.ts` | `public.users` + `auth.users` 삭제 처리 |
+| `lib/supabase/admin.ts` | service-role 기반 admin client 추가 |
+| `app/matches/page.tsx` | 상대 덱 검색 필드 제거 |
+
+### 대회/입력 플로우
+| 항목 | 반영 내용 |
+|------|----------|
+| 대회 분류 | `friendly`, `shop`, `cs` |
+| 토너먼트 단계 | `TournamentPhase = swiss | elimination` |
+| 연속 입력 | 매장대회/CS 저장 후 다음 라운드 입력 링크 유지 |
+| 표시 방식 | 기록 목록에서 tournament timeline UI를 사용하는 방향에 맞춰 백엔드 필드 제공 |
+
+### 오늘 생성/반영된 주요 migration
+- `20260315163000_add_event_category`
+- `20260315180000_add_tournament_phase`
+
+### 오늘 배포 관련 커밋
+- `6d3321e` `feat(webapp): refine profile access and account deletion`
+- `c124d61` `perf(webapp): reduce match and dashboard query load`
+- `2e98cc5` `fix(webapp): cast dashboard user id in raw query`
+- `93b9d3c` `build(webapp): generate prisma client on install`
+- `1dc412d` `chore(webapp): remove opponent search from matches page`
+
 ## 2026-03-15: GA4 Analytics 통합
 
 ### 신규 파일
