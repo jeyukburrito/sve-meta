@@ -62,6 +62,7 @@ model MatchResult {
   playedAt         DateTime
   opponentDeckName String
   eventCategory    EventCategory    @default(friendly)
+  tournamentPhase  TournamentPhase?
   playOrder        PlayOrder
   didChoosePlayOrder Boolean        @default(false)
   matchFormat      MatchFormat
@@ -118,4 +119,9 @@ enum EventCategory {
   friendly
   shop
   cs
+}
+
+enum TournamentPhase {
+  swiss
+  elimination
 }

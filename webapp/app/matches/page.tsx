@@ -157,7 +157,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                   {item.match.memo ? <p className="mt-2 text-sm text-muted">{item.match.memo}</p> : null}
                 </div>
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-semibold ${
+                  className={`rounded-full px-4 py-1.5 text-base font-bold ${
                     item.match.isMatchWin
                       ? "bg-success/10 text-success"
                       : "bg-danger/10 text-danger"

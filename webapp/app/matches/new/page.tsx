@@ -29,7 +29,12 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   const continueDeck = typeof params?.deckId === "string" ? params.deckId : undefined;
   const continueGame = typeof params?.gameId === "string" ? params.gameId : undefined;
   const roundNumber = typeof params?.round === "string" ? parseInt(params.round, 10) : undefined;
+  const phase = typeof params?.phase === "string" ? params.phase : "swiss";
   const isContinue = continueEvent === "shop" || continueEvent === "cs";
+  const isElimination = phase === "elimination";
+
+  const eventLabel = continueEvent === "cs" ? "CS" : "매장대회";
+  const phaseLabel = isElimination ? "본선" : "예선";
 
   const today = continueDate ?? new Date().toISOString().slice(0, 10);
   const decks = await prisma.deck.findMany({
@@ -49,17 +54,43 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
     },
   });
 
+  // 토너먼트 진행 링크 생성 (예선→본선 전환)
+  const eliminationUrl = isContinue
+    ? `/matches/new?${new URLSearchParams({
+        event: continueEvent!,
+        date: continueDate ?? today,
+        gameId: continueGame ?? "",
+        deckId: continueDeck ?? "",
+        round: "1",
+        phase: "elimination",
+      }).toString()}`
+    : null;
+
   return (
     <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       {isContinue && roundNumber ? (
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm font-medium text-accent">
-          <span>{continueEvent === "cs" ? "CS" : "매장대회"} 라운드 {roundNumber} 입력 중</span>
-          <Link
-            href="/matches"
-            className="rounded-full border border-accent/30 px-3 py-1 text-xs transition-colors hover:bg-accent/10"
-          >
-            대회 종료
-          </Link>
+        <div className="mb-4 rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-accent">
+              {eventLabel} {phaseLabel} 라운드 {roundNumber} 입력 중
+            </span>
+            <div className="flex gap-2">
+              {!isElimination && eliminationUrl ? (
+                <Link
+                  href={eliminationUrl}
+                  className="rounded-full border border-accent/30 px-3 py-1 text-xs font-medium text-accent transition-colors hover:bg-accent/10"
+                >
+                  본선 진행
+                </Link>
+              ) : null}
+              <Link
+                href="/matches"
+                className="rounded-full border border-line px-3 py-1 text-xs font-medium text-muted transition-colors hover:bg-line"
+              >
+                대회 종료
+              </Link>
+            </div>
+          </div>
         </div>
       ) : null}
       <form
@@ -71,6 +102,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             {errorMessage}
           </div>
         ) : null}
+        {isContinue ? <input type="hidden" name="tournamentPhase" value={phase} /> : null}
         <EventCategorySelect defaultValue={continueEvent ?? "friendly"} />
         <label className="grid gap-2 text-sm font-medium">
           날짜
@@ -135,7 +167,10 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
               먼저 설정에서 카드게임과 내 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
             </p>
           ) : null}
-          <SubmitButton label={isContinue ? `라운드 ${roundNumber ?? ""} 저장` : "결과 저장"} disabled={decks.length === 0} />
+          <SubmitButton
+            label={isContinue ? `${phaseLabel} R${roundNumber ?? ""} 저장` : "결과 저장"}
+            disabled={decks.length === 0}
+          />
         </div>
       </form>
     </AppShell>

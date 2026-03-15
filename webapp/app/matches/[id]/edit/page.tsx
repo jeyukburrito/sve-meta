@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
+import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
@@ -78,6 +79,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
         className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
       >
         <input type="hidden" name="matchId" value={match.id} />
+        <input type="hidden" name="tournamentPhase" value={match.tournamentPhase ?? ""} />
         {errorMessage ? (
           <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">
             {errorMessage}
@@ -113,19 +115,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
-        <label className="grid gap-2 text-sm font-medium">
-          대회 분류
-          <select
-            name="eventCategory"
-            defaultValue={match.eventCategory}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="friendly">친선전</option>
-            <option value="shop">매장대회</option>
-            <option value="cs">CS</option>
-          </select>
-        </label>
+        <EventCategorySelect defaultValue={match.eventCategory} />
         <MatchResultInput
           defaultFormat={match.matchFormat}
           defaultResult={match.isMatchWin ? "win" : "lose"}

@@ -48,6 +48,7 @@ function parseMatchForm(formData: FormData) {
     myDeckId: formData.get("myDeckId"),
     opponentDeckName: formData.get("opponentDeckName"),
     eventCategory: formData.get("eventCategory"),
+    tournamentPhase: formData.get("tournamentPhase") || undefined,
     playOrder: formData.get("playOrder"),
     didChoosePlayOrder: formData.get("didChoosePlayOrder"),
     matchFormat: formData.get("matchFormat"),
@@ -84,6 +85,10 @@ export async function createMatchResult(formData: FormData) {
       playedAt: new Date(parsed.data.playedAt),
       opponentDeckName: parsed.data.opponentDeckName,
       eventCategory: parsed.data.eventCategory,
+      tournamentPhase:
+        parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs"
+          ? parsed.data.tournamentPhase ?? "swiss"
+          : null,
       playOrder: parsed.data.playOrder,
       didChoosePlayOrder: parsed.data.didChoosePlayOrder,
       matchFormat: parsed.data.matchFormat,
@@ -99,10 +104,12 @@ export async function createMatchResult(formData: FormData) {
 
   // 대회 모드: 저장 후 다음 라운드 입력으로 리다이렉트
   if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
+    const phase = parsed.data.tournamentPhase ?? "swiss";
     const todayCount = await prisma.matchResult.count({
       where: {
         userId: user.id,
         eventCategory: parsed.data.eventCategory,
+        tournamentPhase: phase,
         playedAt: new Date(parsed.data.playedAt),
       },
     });
@@ -113,6 +120,7 @@ export async function createMatchResult(formData: FormData) {
       gameId: parsed.data.gameId,
       deckId: parsed.data.myDeckId,
       round: String(todayCount + 1),
+      phase,
     });
     redirect(`/matches/new?${sp.toString()}`);
   }
@@ -170,6 +178,10 @@ export async function updateMatchResult(formData: FormData) {
       playedAt: new Date(parsed.data.playedAt),
       opponentDeckName: parsed.data.opponentDeckName,
       eventCategory: parsed.data.eventCategory,
+      tournamentPhase:
+        parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs"
+          ? parsed.data.tournamentPhase ?? "swiss"
+          : null,
       playOrder: parsed.data.playOrder,
       didChoosePlayOrder: parsed.data.didChoosePlayOrder,
       matchFormat: parsed.data.matchFormat,

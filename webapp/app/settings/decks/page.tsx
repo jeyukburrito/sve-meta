@@ -124,7 +124,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 <div>
                   <div className="flex items-center gap-3">
                     <span
-                      className="inline-block size-3 rounded-full border border-black/10"
+                      className="inline-block size-3 rounded-full border border-line"
                       style={{ backgroundColor: deck.color ?? "#e2e8f0" }}
                     />
                     <span className="font-medium">{deck.name}</span>

@@ -42,7 +42,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <button
               type="submit"
               disabled={!isSupabaseConfigured}
-              className="w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-neutral-400"
+              className="w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               Google로 로그인
             </button>

@@ -3,6 +3,7 @@ type MatchRow = {
   playedAt: Date;
   opponentDeckName: string;
   eventCategory: string;
+  tournamentPhase: string | null;
   matchFormat: string;
   isMatchWin: boolean;
   playOrder: string;
@@ -26,6 +27,8 @@ export type TournamentGroup = {
   firstDeckId: string;
   firstGameId: string;
   matches: MatchRow[];
+  hasSwiss: boolean;
+  hasElimination: boolean;
 };
 
 export type DisplayItem =
@@ -55,10 +58,19 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
         firstDeckId: match.myDeck.id,
         firstGameId: match.myDeck.gameId,
         matches: [],
+        hasSwiss: false,
+        hasElimination: false,
       });
     }
 
-    tournamentMap.get(key)!.matches.push(match);
+    const group = tournamentMap.get(key)!;
+    group.matches.push(match);
+
+    if (match.tournamentPhase === "elimination") {
+      group.hasElimination = true;
+    } else {
+      group.hasSwiss = true;
+    }
   }
 
   // 대회 그룹 내 매치를 생성순 정렬 (라운드 순)
