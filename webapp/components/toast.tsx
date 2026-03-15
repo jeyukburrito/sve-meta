@@ -57,10 +57,10 @@ export function Toast() {
 
   return (
     <div
-      className={`fixed bottom-20 left-1/2 z-50 -translate-x-1/2 ${
+      className={`fixed top-20 left-1/2 z-50 ${
         dismissing
-          ? "animate-[fadeOutDown_0.3s_ease-in_forwards]"
-          : "animate-[fadeInUp_0.2s_ease-out]"
+          ? "animate-[fadeOutUp_0.3s_ease-in_forwards]"
+          : "animate-[fadeInDown_0.2s_ease-out_forwards]"
       }`}
     >
       <div className="rounded-2xl border border-accent/30 bg-surface px-5 py-3 text-sm font-medium text-accent shadow-lg">
