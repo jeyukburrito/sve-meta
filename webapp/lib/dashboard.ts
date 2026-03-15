@@ -64,7 +64,7 @@ function buildPlayedAtSql(opts: FilterOptions) {
 }
 
 function buildWhereSql(userId: string, opts: FilterOptions) {
-  const clauses = [Prisma.sql`m."userId" = ${userId}`, ...buildPlayedAtSql(opts)];
+  const clauses = [Prisma.sql`m."userId" = CAST(${userId} AS uuid)`, ...buildPlayedAtSql(opts)];
   return Prisma.sql`WHERE ${Prisma.join(clauses, " AND ")}`;
 }
 
