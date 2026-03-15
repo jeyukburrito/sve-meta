@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { GameDeckFields } from "@/components/game-deck-fields";
+import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
-import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -64,18 +64,18 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   }
 
   return (
-    <AppShell title="기록 수정" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell title="기록 수정" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <div className="mb-4">
         <Link
           href="/matches"
-          className="inline-flex text-sm font-medium text-neutral-600 underline-offset-4 hover:underline"
+          className="inline-flex text-sm font-medium text-muted underline-offset-4 hover:underline"
         >
           기록 목록으로 돌아가기
         </Link>
       </div>
       <form
         action={updateMatchResult}
-        className="grid gap-4 rounded-3xl border border-line bg-white p-5 shadow-sm md:grid-cols-2"
+        className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
       >
         <input type="hidden" name="matchId" value={match.id} />
         {errorMessage ? (
@@ -90,7 +90,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             type="date"
             required
             defaultValue={match.playedAt.toISOString().slice(0, 10)}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
         <GameDeckFields
@@ -110,8 +110,21 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             type="text"
             required
             defaultValue={match.opponentDeckName}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          대회 분류
+          <select
+            name="eventCategory"
+            defaultValue={match.eventCategory}
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            required
+          >
+            <option value="friendly">친선전</option>
+            <option value="shop">매장대회</option>
+            <option value="cs">CS</option>
+          </select>
         </label>
         <MatchResultInput
           defaultFormat={match.matchFormat}
@@ -122,7 +135,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
           <select
             name="playOrder"
             defaultValue={match.playOrder}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
             required
           >
             <option value="first">선공</option>
@@ -134,7 +147,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
           <select
             name="didChoosePlayOrder"
             defaultValue={String(match.didChoosePlayOrder)}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
             required
           >
             <option value="true">O</option>
@@ -147,7 +160,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             name="memo"
             rows={4}
             defaultValue={match.memo ?? ""}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
         <div className="md:col-span-2">

@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { ColorPicker } from "@/components/color-picker";
-import { ProfileAvatar } from "@/components/profile-avatar";
+import { HeaderActions } from "@/components/header-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -43,9 +43,9 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
   ]);
 
   return (
-    <AppShell title="내 덱 관리" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell title="내 덱 관리" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+        <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <h2 className="text-lg font-semibold">덱 추가</h2>
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
@@ -59,7 +59,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 name="gameId"
                 required
                 defaultValue=""
-                className="rounded-2xl border border-line px-4 py-3"
+                className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
               >
                 <option value="">카드게임을 선택하세요</option>
                 {games.map((game) => (
@@ -76,7 +76,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 type="text"
                 required
                 maxLength={60}
-                className="rounded-2xl border border-line px-4 py-3"
+                className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
                 placeholder="예: 어그로 덱"
               />
             </label>
@@ -87,7 +87,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 name="memo"
                 rows={4}
                 maxLength={300}
-                className="rounded-2xl border border-line px-4 py-3"
+                className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
               />
             </label>
             <div>
@@ -101,7 +101,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
           </form>
         </article>
 
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+        <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">등록된 덱</h2>
@@ -112,7 +112,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
           </div>
           <div className="mt-5 flex flex-col gap-3">
             {decks.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-line px-4 py-6 text-sm text-neutral-500">
+              <div className="rounded-2xl border border-dashed border-line px-4 py-6 text-sm text-muted">
                 아직 등록된 덱이 없습니다.
               </div>
             ) : null}
@@ -128,20 +128,20 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                       style={{ backgroundColor: deck.color ?? "#e2e8f0" }}
                     />
                     <span className="font-medium">{deck.name}</span>
-                    <span className="rounded-full bg-paper px-2 py-1 text-xs font-medium text-neutral-600">
+                    <span className="rounded-full bg-paper px-2 py-1 text-xs font-medium text-muted">
                       {deck.game.name}
                     </span>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-semibold ${
                         deck.isActive
                           ? "bg-success/10 text-success"
-                          : "bg-neutral-200 text-neutral-600"
+                          : "bg-line text-muted"
                       }`}
                     >
                       {deck.isActive ? "활성" : "비활성"}
                     </span>
                   </div>
-                  {deck.memo ? <p className="mt-2 text-sm text-neutral-600">{deck.memo}</p> : null}
+                  {deck.memo ? <p className="mt-2 text-sm text-muted">{deck.memo}</p> : null}
                 </div>
                 <form action={toggleDeckState}>
                   <input type="hidden" name="deckId" value={deck.id} />

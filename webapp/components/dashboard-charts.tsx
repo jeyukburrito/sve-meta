@@ -5,10 +5,10 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { DonutSlice } from "@/lib/dashboard";
 
 const COLORS = [
-  "#0e6d53",
+  "#4f46e5",
   "#8f5a20",
   "#3b6fa0",
-  "#a33a2b",
+  "#dc2626",
   "#6b5b95",
   "#d8a347",
   "#2e8b7a",
@@ -26,15 +26,15 @@ type DonutChartProps = {
 function DonutChart({ title, data, totalMatches }: DonutChartProps) {
   if (data.length === 0) {
     return (
-      <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+      <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
         <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="mt-4 text-sm text-neutral-500">표시할 데이터가 없습니다.</p>
+        <p className="mt-4 text-sm text-muted">표시할 데이터가 없습니다.</p>
       </article>
     );
   }
 
   return (
-    <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+    <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
       <h2 className="text-lg font-semibold">{title}</h2>
       <div className="mt-4 flex flex-col items-center gap-4 md:flex-row">
         <div className="h-56 w-56 shrink-0">
@@ -72,7 +72,7 @@ function DonutChart({ title, data, totalMatches }: DonutChartProps) {
                 style={{ backgroundColor: COLORS[i % COLORS.length] }}
               />
               <span className="flex-1 truncate font-medium">{item.name}</span>
-              <span className="text-neutral-500">
+              <span className="text-muted">
                 {item.value}회 · 승률 {item.rate}%
               </span>
             </div>

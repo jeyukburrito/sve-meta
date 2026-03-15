@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/app-shell";
-import { ProfileAvatar } from "@/components/profile-avatar";
+import { HeaderActions } from "@/components/header-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -34,9 +34,9 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   });
 
   return (
-    <AppShell title="카드게임 관리" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell title="카드게임 관리" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+        <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <h2 className="text-lg font-semibold">카드게임 추가</h2>
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
@@ -51,7 +51,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                 type="text"
                 required
                 maxLength={60}
-                className="rounded-2xl border border-line px-4 py-3"
+                className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
               />
             </label>
             <div>
@@ -60,7 +60,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
           </form>
         </article>
 
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
+        <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">등록된 카드게임</h2>
@@ -71,7 +71,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
           </div>
           <div className="mt-5 flex flex-col gap-3">
             {games.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-line px-4 py-6 text-sm text-neutral-500">
+              <div className="rounded-2xl border border-dashed border-line px-4 py-6 text-sm text-muted">
                 아직 등록된 카드게임이 없습니다.
               </div>
             ) : null}
@@ -83,7 +83,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="font-medium">{game.name}</p>
-                    <p className="mt-1 text-sm text-neutral-500">연결된 덱 {game._count.decks}개</p>
+                    <p className="mt-1 text-sm text-muted">연결된 덱 {game._count.decks}개</p>
                   </div>
                   <div className="flex flex-col gap-2 md:items-end">
                     <form action={updateGame} className="flex gap-2">
@@ -93,7 +93,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                         type="text"
                         defaultValue={game.name}
                         maxLength={60}
-                        className="rounded-full border border-line px-4 py-2 text-sm"
+                        className="rounded-full border border-line bg-surface px-4 py-2 text-sm text-ink"
                       />
                       <button
                         type="submit"

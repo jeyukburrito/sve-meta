@@ -41,7 +41,7 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
             className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
               activePeriod === p.value
                 ? "border-accent bg-accent text-white"
-                : "border-line bg-white text-ink"
+                : "border-line bg-surface text-ink"
             }`}
           >
             {p.label}
@@ -60,22 +60,22 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
         }}
         className="flex flex-wrap items-end gap-2"
       >
-        <label className="grid gap-1 text-xs text-neutral-500">
+        <label className="grid gap-1 text-xs text-muted">
           시작일
           <input
             type="date"
             name="from"
             defaultValue={defaultFrom}
-            className="rounded-2xl border border-line px-3 py-2 text-sm text-ink"
+            className="rounded-2xl border border-line bg-surface px-3 py-2 text-sm text-ink"
           />
         </label>
-        <label className="grid gap-1 text-xs text-neutral-500">
+        <label className="grid gap-1 text-xs text-muted">
           종료일
           <input
             type="date"
             name="to"
             defaultValue={defaultTo}
-            className="rounded-2xl border border-line px-3 py-2 text-sm text-ink"
+            className="rounded-2xl border border-line bg-surface px-3 py-2 text-sm text-ink"
           />
         </label>
         <button
@@ -83,7 +83,7 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
           className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
             activePeriod === "custom"
               ? "border-accent bg-accent text-white"
-              : "border-accent bg-white text-accent"
+              : "border-accent bg-surface text-accent"
           }`}
         >
           적용

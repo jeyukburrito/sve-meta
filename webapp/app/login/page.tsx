@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           TCG Match Tracker
         </p>
         <h1 className="mt-3 text-2xl font-semibold text-ink">로그인</h1>
-        <div className="mt-8 rounded-3xl border border-line bg-white p-6 shadow-sm">
+        <div className="mt-8 rounded-3xl border border-line bg-surface p-6 shadow-sm">
           {!isSupabaseConfigured ? (
             <div className="mb-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
               Supabase 설정이 없어 로그인이 비활성화되었습니다.

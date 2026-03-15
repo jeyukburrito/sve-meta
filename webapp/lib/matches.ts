@@ -7,6 +7,7 @@ export type MatchFilters = {
   gameId: string;
   deckId: string;
   format: string;
+  event: string;
 };
 
 export function parseMatchFilters(searchParams?: URLSearchParams | Record<string, string | string[] | undefined>): MatchFilters {
@@ -28,6 +29,7 @@ export function parseMatchFilters(searchParams?: URLSearchParams | Record<string
     gameId: read("gameId"),
     deckId: read("deckId"),
     format: read("format"),
+    event: read("event"),
   };
 }
 
@@ -45,6 +47,9 @@ export function buildMatchWhere(userId: string, filters: MatchFilters): Prisma.M
       : {}),
     ...(filters.deckId ? { myDeckId: filters.deckId } : {}),
     ...(filters.format === "bo1" || filters.format === "bo3" ? { matchFormat: filters.format } : {}),
+    ...(filters.event === "friendly" || filters.event === "shop" || filters.event === "cs"
+      ? { eventCategory: filters.event }
+      : {}),
   };
 }
 

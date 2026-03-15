@@ -6,6 +6,7 @@ export const matchResultSchema = z
     gameId: z.string().uuid(),
     myDeckId: z.string().uuid(),
     opponentDeckName: z.string().trim().min(1).max(120),
+    eventCategory: z.enum(["friendly", "shop", "cs"]),
     playOrder: z.enum(["first", "second"]),
     didChoosePlayOrder: z
       .enum(["true", "false"])

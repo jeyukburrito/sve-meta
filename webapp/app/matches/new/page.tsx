@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { GameDeckFields } from "@/components/game-deck-fields";
+import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
-import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -38,10 +38,10 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   });
 
   return (
-    <AppShell title="결과 입력" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <form
         action={createMatchResult}
-        className="grid gap-4 rounded-3xl border border-line bg-white p-5 shadow-sm md:grid-cols-2"
+        className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
       >
         {errorMessage ? (
           <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">
@@ -55,7 +55,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             type="date"
             required
             defaultValue={today}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
         <GameDeckFields
@@ -72,13 +72,26 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             name="opponentDeckName"
             type="text"
             required
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
+        </label>
+        <label className="grid gap-2 text-sm font-medium">
+          대회 분류
+          <select
+            name="eventCategory"
+            defaultValue="friendly"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            required
+          >
+            <option value="friendly">친선전</option>
+            <option value="shop">매장대회</option>
+            <option value="cs">CS</option>
+          </select>
         </label>
         <MatchResultInput />
         <label className="grid gap-2 text-sm font-medium">
           선공 / 후공
-          <select name="playOrder" className="rounded-2xl border border-line px-4 py-3" required>
+          <select name="playOrder" className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink" required>
             <option value="first">선공</option>
             <option value="second">후공</option>
           </select>
@@ -88,7 +101,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
           <select
             name="didChoosePlayOrder"
             defaultValue="false"
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
             required
           >
             <option value="true">O</option>
@@ -100,7 +113,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
           <textarea
             name="memo"
             rows={4}
-            className="rounded-2xl border border-line px-4 py-3"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
         <div className="md:col-span-2">

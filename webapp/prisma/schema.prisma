@@ -61,6 +61,7 @@ model MatchResult {
   myDeckId         String           @db.Uuid
   playedAt         DateTime
   opponentDeckName String
+  eventCategory    EventCategory    @default(friendly)
   playOrder        PlayOrder
   didChoosePlayOrder Boolean        @default(false)
   matchFormat      MatchFormat
@@ -111,4 +112,10 @@ enum PlayOrder {
 enum MatchFormat {
   bo1
   bo3
+}
+
+enum EventCategory {
+  friendly
+  shop
+  cs
 }

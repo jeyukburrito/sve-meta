@@ -60,7 +60,7 @@ export function GameDeckFields({
           name="gameId"
           value={selectedGameId}
           onChange={(event) => setSelectedGameId(event.target.value)}
-          className="rounded-2xl border border-line px-4 py-3"
+          className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           required
         >
           <option value="">카드 게임을 선택하세요</option>
@@ -77,7 +77,7 @@ export function GameDeckFields({
           name="myDeckId"
           value={selectedDeckId}
           onChange={(event) => setSelectedDeckId(event.target.value)}
-          className="rounded-2xl border border-line px-4 py-3"
+          className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           required
           disabled={!selectedGameId}
         >

@@ -55,7 +55,7 @@ export function Toast() {
           : "animate-[fadeInUp_0.2s_ease-out]"
       }`}
     >
-      <div className="rounded-2xl border border-accent/30 bg-white px-5 py-3 text-sm font-medium text-accent shadow-lg">
+      <div className="rounded-2xl border border-accent/30 bg-surface px-5 py-3 text-sm font-medium text-accent shadow-lg">
         {text}
       </div>
     </div>

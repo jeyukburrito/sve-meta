@@ -24,7 +24,7 @@ export function MatchResultInput({
           name="matchFormat"
           value={format}
           onChange={(e) => setFormat(e.target.value)}
-          className="rounded-2xl border border-line px-4 py-3"
+          className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           required
         >
           <option value="bo1">BO1</option>
@@ -40,7 +40,7 @@ export function MatchResultInput({
             className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
               result === "win"
                 ? "border-accent bg-accent/10 text-accent"
-                : "border-line text-neutral-500"
+                : "border-line text-muted"
             }`}
           >
             승리
@@ -51,7 +51,7 @@ export function MatchResultInput({
             className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-colors ${
               result === "lose"
                 ? "border-danger bg-danger/10 text-danger"
-                : "border-line text-neutral-500"
+                : "border-line text-muted"
             }`}
           >
             패배
