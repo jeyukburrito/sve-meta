@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
-import { requireUser } from "@/lib/auth";
+import { ProfileAvatar } from "@/components/profile-avatar";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 
 import { signOut } from "../login/actions";
 
@@ -9,9 +10,10 @@ export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
 
   return (
-    <AppShell title="설정" description="계정, 데이터, 카드게임 구성을 여기서 관리합니다.">
+    <AppShell title="설정" description="계정, 데이터, 카드게임 구성을 여기서 관리합니다." headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="space-y-4">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">프로필</h2>

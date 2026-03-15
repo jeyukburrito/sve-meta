@@ -9,11 +9,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#171717",
-        paper: "#f6f1e8",
-        accent: "#0e6d53",
-        danger: "#a33a2b",
-        line: "#d8cdbf",
+        ink: "#0f172a",
+        paper: "#f8fafc",
+        accent: "#4f46e5",
+        danger: "#dc2626",
+        success: "#16a34a",
+        line: "#e2e8f0",
       },
     },
   },

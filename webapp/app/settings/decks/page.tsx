@@ -1,7 +1,8 @@
 import { AppShell } from "@/components/app-shell";
 import { ColorPicker } from "@/components/color-picker";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
-import { requireUser } from "@/lib/auth";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ type DeckSettingsPageProps = {
 
 export default async function DeckSettingsPage({ searchParams }: DeckSettingsPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
   const [games, decks] = await Promise.all([
@@ -41,7 +43,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
   ]);
 
   return (
-    <AppShell title="내 덱 관리">
+    <AppShell title="내 덱 관리" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">덱 추가</h2>
@@ -123,7 +125,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                   <div className="flex items-center gap-3">
                     <span
                       className="inline-block size-3 rounded-full border border-black/10"
-                      style={{ backgroundColor: deck.color ?? "#d8cdbf" }}
+                      style={{ backgroundColor: deck.color ?? "#e2e8f0" }}
                     />
                     <span className="font-medium">{deck.name}</span>
                     <span className="rounded-full bg-paper px-2 py-1 text-xs font-medium text-neutral-600">
@@ -132,7 +134,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-semibold ${
                         deck.isActive
-                          ? "bg-accent/10 text-accent"
+                          ? "bg-success/10 text-success"
                           : "bg-neutral-200 text-neutral-600"
                       }`}
                     >

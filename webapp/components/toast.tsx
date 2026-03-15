@@ -15,26 +15,46 @@ const MESSAGE_MAP: Record<string, string> = {
   "카드게임 카테고리를 삭제했습니다.": "카드게임을 삭제했습니다.",
 };
 
+const VISIBLE_MS = 2500;
+const FADE_OUT_MS = 300;
+
 export function Toast() {
   const searchParams = useSearchParams();
   const [text, setText] = useState<string | null>(null);
+  const [dismissing, setDismissing] = useState(false);
 
   useEffect(() => {
     const msg = searchParams.get("message");
     if (msg && MESSAGE_MAP[msg]) {
       setText(MESSAGE_MAP[msg]);
+      setDismissing(false);
       const url = new URL(window.location.href);
       url.searchParams.delete("message");
       window.history.replaceState({}, "", url.toString());
-      const timer = setTimeout(() => setText(null), 3000);
-      return () => clearTimeout(timer);
+
+      const fadeTimer = setTimeout(() => setDismissing(true), VISIBLE_MS);
+      const removeTimer = setTimeout(() => {
+        setText(null);
+        setDismissing(false);
+      }, VISIBLE_MS + FADE_OUT_MS);
+
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(removeTimer);
+      };
     }
   }, [searchParams]);
 
   if (!text) return null;
 
   return (
-    <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 animate-[fadeInUp_0.2s_ease-out]">
+    <div
+      className={`fixed bottom-20 left-1/2 z-50 -translate-x-1/2 ${
+        dismissing
+          ? "animate-[fadeOutDown_0.3s_ease-in_forwards]"
+          : "animate-[fadeInUp_0.2s_ease-out]"
+      }`}
+    >
       <div className="rounded-2xl border border-accent/30 bg-white px-5 py-3 text-sm font-medium text-accent shadow-lg">
         {text}
       </div>

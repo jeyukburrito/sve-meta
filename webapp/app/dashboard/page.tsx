@@ -1,7 +1,8 @@
 import { AppShell } from "@/components/app-shell";
 import { DashboardCharts } from "@/components/dashboard-charts";
 import { PeriodFilter } from "@/components/period-filter";
-import { requireUser } from "@/lib/auth";
+import { ProfileAvatar } from "@/components/profile-avatar";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { buildDonutData, filterByPeriod } from "@/lib/dashboard";
 import { prisma } from "@/lib/prisma";
 
@@ -13,6 +14,7 @@ type DashboardPageProps = {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const period = typeof params?.period === "string" ? params.period : "all";
   const from = typeof params?.from === "string" ? params.from : undefined;
@@ -43,7 +45,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const { myDeckSlices, opponentSlices, totalMatches } = buildDonutData(filtered);
 
   return (
-    <AppShell title="대시보드">
+    <AppShell title="대시보드" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="mb-6">
         <PeriodFilter activePeriod={period} defaultFrom={from} defaultTo={to} />
       </section>

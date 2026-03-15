@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
-import { requireUser } from "@/lib/auth";
+import { ProfileAvatar } from "@/components/profile-avatar";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ function formatDate(value: Date | null) {
 
 export default async function ProfilePage() {
   const authUser = await requireUser();
+  const display = getUserDisplayInfo(authUser);
   const [profile, gameCount, deckCount, matchCount] = await Promise.all([
     prisma.user.findUnique({
       where: {
@@ -40,7 +42,7 @@ export default async function ProfilePage() {
   ]);
 
   return (
-    <AppShell title="프로필" description="계정 정보와 현재 누적 사용 현황을 확인합니다.">
+    <AppShell title="프로필" description="계정 정보와 현재 누적 사용 현황을 확인합니다." headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="grid gap-4 md:grid-cols-2">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">계정</h2>

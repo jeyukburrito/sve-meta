@@ -1,8 +1,9 @@
 import { AppShell } from "@/components/app-shell";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { MatchResultInput } from "@/components/match-result-input";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
-import { requireUser } from "@/lib/auth";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { createMatchResult } from "../actions";
@@ -15,6 +16,7 @@ type NewMatchPageProps = {
 
 export default async function NewMatchPage({ searchParams }: NewMatchPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
   const today = new Date().toISOString().slice(0, 10);
@@ -36,7 +38,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   });
 
   return (
-    <AppShell title="결과 입력">
+    <AppShell title="결과 입력" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <form
         action={createMatchResult}
         className="grid gap-4 rounded-3xl border border-line bg-white p-5 shadow-sm md:grid-cols-2"

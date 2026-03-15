@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { MatchResultInput } from "@/components/match-result-input";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
-import { requireUser } from "@/lib/auth";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { updateMatchResult } from "../../actions";
@@ -21,6 +22,7 @@ type EditMatchPageProps = {
 
 export default async function EditMatchPage({ params, searchParams }: EditMatchPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const { id } = await params;
   const query = searchParams ? await searchParams : undefined;
   const errorMessage = typeof query?.error === "string" ? query.error : undefined;
@@ -62,7 +64,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   }
 
   return (
-    <AppShell title="기록 수정">
+    <AppShell title="기록 수정" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <div className="mb-4">
         <Link
           href="/matches"

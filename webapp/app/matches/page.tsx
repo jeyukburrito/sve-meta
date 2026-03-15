@@ -3,7 +3,8 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { AutoSubmitSelect } from "@/components/auto-submit-select";
 import { DeleteMatchButton } from "@/components/delete-match-button";
-import { requireUser } from "@/lib/auth";
+import { ProfileAvatar } from "@/components/profile-avatar";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { formatRelativeDate } from "@/lib/format-date";
 import { listMatchesForUser, parseMatchFilters } from "@/lib/matches";
 import { prisma } from "@/lib/prisma";
@@ -17,6 +18,7 @@ type MatchesPageProps = {
 
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const filters = parseMatchFilters(params);
   const opponentQuery = filters.opponent;
@@ -52,7 +54,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   ]);
 
   return (
-    <AppShell title="기록 목록">
+    <AppShell title="기록 목록" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="rounded-3xl border border-line bg-white p-5 shadow-sm">
         <form className="grid gap-3 md:grid-cols-4">
           <input
@@ -127,7 +129,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
               <span
                 className={`rounded-full px-3 py-1 text-sm font-semibold ${
                   row.isMatchWin
-                    ? "bg-accent/10 text-accent"
+                    ? "bg-success/10 text-success"
                     : "bg-danger/10 text-danger"
                 }`}
               >

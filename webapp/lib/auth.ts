@@ -23,6 +23,14 @@ export async function syncUserProfile(user: SupabaseUser) {
   });
 }
 
+export function getUserDisplayInfo(user: SupabaseUser) {
+  return {
+    name: (user.user_metadata?.name ?? user.user_metadata?.full_name ?? null) as string | null,
+    avatarUrl: (user.user_metadata?.avatar_url as string) ?? null,
+    email: user.email ?? null,
+  };
+}
+
 export async function requireUser() {
   if (!isSupabaseConfigured) {
     redirect("/login?error=config_missing");

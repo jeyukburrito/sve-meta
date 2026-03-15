@@ -1,11 +1,13 @@
 import { AppShell } from "@/components/app-shell";
-import { requireUser } from "@/lib/auth";
+import { ProfileAvatar } from "@/components/profile-avatar";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExportPage() {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const [games, decks] = await Promise.all([
     prisma.game.findMany({
       where: {
@@ -33,7 +35,7 @@ export default async function ExportPage() {
   ]);
 
   return (
-    <AppShell title="데이터 내보내기" description="필요한 조건만 골라 CSV 파일로 내려받습니다.">
+    <AppShell title="데이터 내보내기" description="필요한 조건만 골라 CSV 파일로 내려받습니다." headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="rounded-3xl border border-line bg-white p-5 shadow-sm">
         <form action="/matches/export" method="get" className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-medium">

@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/app-shell";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { SubmitButton } from "@/components/submit-button";
-import { requireUser } from "@/lib/auth";
+import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { createGame, deleteGame, updateGame } from "./actions";
@@ -13,6 +14,7 @@ type GamesPageProps = {
 
 export default async function GamesPage({ searchParams }: GamesPageProps) {
   const user = await requireUser();
+  const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
   const games = await prisma.game.findMany({
@@ -32,7 +34,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   });
 
   return (
-    <AppShell title="카드게임 관리">
+    <AppShell title="카드게임 관리" headerRight={<ProfileAvatar avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">카드게임 추가</h2>

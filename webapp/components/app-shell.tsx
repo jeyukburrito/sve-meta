@@ -5,10 +5,11 @@ import { BottomNav } from "@/components/bottom-nav";
 type AppShellProps = {
   title: string;
   description?: string;
+  headerRight?: ReactNode;
   children: ReactNode;
 };
 
-export function AppShell({ title, description, children }: AppShellProps) {
+export function AppShell({ title, description, headerRight, children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-paper text-ink">
       <header className="border-b border-line bg-white/80 backdrop-blur">
@@ -18,8 +19,9 @@ export function AppShell({ title, description, children }: AppShellProps) {
               TCG Match Tracker
             </p>
             <h1 className="text-lg font-semibold">{title}</h1>
-            {description ? <p className="text-sm text-neutral-600">{description}</p> : null}
+            {description ? <p className="text-sm text-slate-500">{description}</p> : null}
           </div>
+          {headerRight ? <div>{headerRight}</div> : null}
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
