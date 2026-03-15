@@ -15,7 +15,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   const user = await requireUser();
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
-  const successMessage = typeof params?.message === "string" ? params.message : undefined;
   const games = await prisma.game.findMany({
     where: {
       userId: user.id,
@@ -33,21 +32,13 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   });
 
   return (
-    <AppShell title="카드게임 관리" description="원하는 카드게임 이름을 직접 입력해 카테고리를 만듭니다.">
+    <AppShell title="카드게임 관리">
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">카드게임 추가</h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            예: Shadowverse EVOLVE, 포켓몬 카드게임, 원피스 카드게임
-          </p>
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
               {errorMessage}
-            </div>
-          ) : null}
-          {successMessage ? (
-            <div className="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm text-accent">
-              {successMessage}
             </div>
           ) : null}
           <form action={createGame} className="mt-5 grid gap-4">
@@ -72,9 +63,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">등록된 카드게임</h2>
-              <p className="mt-2 text-sm text-neutral-600">
-                덱과 경기 기록은 이 카드게임 카테고리 기준으로 묶입니다.
-              </p>
             </div>
             <span className="rounded-full bg-paper px-3 py-1 text-sm font-medium">
               총 {games.length}개

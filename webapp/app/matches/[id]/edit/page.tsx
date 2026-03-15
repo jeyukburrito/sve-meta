@@ -24,7 +24,6 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   const { id } = await params;
   const query = searchParams ? await searchParams : undefined;
   const errorMessage = typeof query?.error === "string" ? query.error : undefined;
-  const successMessage = typeof query?.message === "string" ? query.message : undefined;
 
   const [match, decks] = await Promise.all([
     prisma.matchResult.findFirst({
@@ -63,7 +62,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   }
 
   return (
-    <AppShell title="기록 수정" description="기존 대전 기록을 수정하고 저장합니다.">
+    <AppShell title="기록 수정">
       <div className="mb-4">
         <Link
           href="/matches"
@@ -80,11 +79,6 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
         {errorMessage ? (
           <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">
             {errorMessage}
-          </div>
-        ) : null}
-        {successMessage ? (
-          <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm text-accent md:col-span-2">
-            {successMessage}
           </div>
         ) : null}
         <label className="grid gap-2 text-sm font-medium">
@@ -152,7 +146,6 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             rows={4}
             defaultValue={match.memo ?? ""}
             className="rounded-2xl border border-line px-4 py-3"
-            placeholder="운영 메모"
           />
         </label>
         <div className="md:col-span-2">

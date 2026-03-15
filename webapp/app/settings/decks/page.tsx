@@ -16,7 +16,6 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
   const user = await requireUser();
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
-  const successMessage = typeof params?.message === "string" ? params.message : undefined;
   const [games, decks] = await Promise.all([
     prisma.game.findMany({
       where: {
@@ -42,21 +41,13 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
   ]);
 
   return (
-    <AppShell title="내 덱 관리" description="입력 화면에서 선택할 덱 목록을 유지합니다.">
+    <AppShell title="내 덱 관리">
       <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">덱 추가</h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            경기 입력 화면에서 선택할 덱을 먼저 등록합니다. 카드게임 카테고리 안에서 이름이 유일해야 합니다.
-          </p>
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
               {errorMessage}
-            </div>
-          ) : null}
-          {successMessage ? (
-            <div className="mt-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm text-accent">
-              {successMessage}
             </div>
           ) : null}
           <form action={createDeck} className="mt-5 grid gap-4">
@@ -95,7 +86,6 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 rows={4}
                 maxLength={300}
                 className="rounded-2xl border border-line px-4 py-3"
-                placeholder="주력 덱, 테스트 목적 등"
               />
             </label>
             <div>
@@ -113,9 +103,6 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">등록된 덱</h2>
-              <p className="mt-2 text-sm text-neutral-600">
-                기록이 연결된 덱은 삭제 대신 비활성화하는 흐름을 기본으로 사용합니다.
-              </p>
             </div>
             <span className="rounded-full bg-paper px-3 py-1 text-sm font-medium">
               총 {decks.length}개

@@ -36,10 +36,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   });
 
   return (
-    <AppShell
-      title="결과 입력"
-      description="모바일에서 빠르게 기록하는 것이 최우선입니다."
-    >
+    <AppShell title="결과 입력">
       <form
         action={createMatchResult}
         className="grid gap-4 rounded-3xl border border-line bg-white p-5 shadow-sm md:grid-cols-2"
@@ -102,7 +99,6 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             name="memo"
             rows={4}
             className="rounded-2xl border border-line px-4 py-3"
-            placeholder="후공에서 mulligan 판단이 애매했음"
           />
         </label>
         <div className="md:col-span-2">

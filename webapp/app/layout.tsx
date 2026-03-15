@@ -3,6 +3,7 @@ import { Noto_Sans_KR } from "next/font/google";
 import { Suspense, type ReactNode } from "react";
 
 import { Analytics } from "@/components/analytics";
+import { Toast } from "@/components/toast";
 
 import "./globals.css";
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={notoSansKR.className}>
         <Suspense fallback={null}>
           <Analytics />
+          <Toast />
         </Suspense>
         {children}
       </body>

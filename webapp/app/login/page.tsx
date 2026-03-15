@@ -23,16 +23,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const errorMessage = errorParam ? errorMessages[errorParam] : undefined;
 
   return (
-    <AppShell
-      title="로그인"
-      description="개인 데이터는 사용자별로 분리되며, Google 로그인만 허용합니다."
-    >
+    <AppShell title="로그인">
       <section className="max-w-lg rounded-3xl border border-line bg-white p-6 shadow-sm">
         <h2 className="text-xl font-semibold">Google 로그인</h2>
-        <p className="mt-3 text-sm leading-6 text-neutral-600">
-          경기 기록과 통계는 계정별로 분리됩니다. QA 계정을 추가하더라도 다른 사용자의 데이터를
-          보지 못하도록 RLS를 기준으로 구성합니다.
-        </p>
         {!isSupabaseConfigured ? (
           <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
             `.env.local`에 Supabase 설정이 없어 로그인 버튼을 비활성화했습니다.

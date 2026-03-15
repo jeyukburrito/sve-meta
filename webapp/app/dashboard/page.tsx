@@ -43,7 +43,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const { myDeckSlices, opponentSlices, totalMatches } = buildDonutData(filtered);
 
   return (
-    <AppShell title="대시보드" description="기간별 덱 분포와 상대 덱 통계를 확인합니다.">
+    <AppShell title="대시보드">
       <section className="mb-6">
         <PeriodFilter activePeriod={period} defaultFrom={from} defaultTo={to} />
       </section>

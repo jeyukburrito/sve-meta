@@ -15,12 +15,6 @@ type MatchesPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const messageMap: Record<string, string> = {
-  record_created: "대전 결과를 저장했습니다.",
-  record_updated: "대전 결과를 수정했습니다.",
-  record_deleted: "대전 결과를 삭제했습니다.",
-};
-
 export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const user = await requireUser();
   const params = searchParams ? await searchParams : undefined;
@@ -29,7 +23,6 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const gameIdQuery = filters.gameId;
   const deckIdQuery = filters.deckId;
   const formatQuery = filters.format;
-  const flashKey = typeof params?.message === "string" ? params.message : "";
   const exportParams = new URLSearchParams();
 
   if (opponentQuery) {
@@ -73,13 +66,8 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   ]);
 
   return (
-    <AppShell title="기록 목록" description="기간, 덱, 태그 기준으로 전적을 필터링합니다.">
+    <AppShell title="기록 목록">
       <section className="rounded-3xl border border-line bg-white p-5 shadow-sm">
-        {flashKey && messageMap[flashKey] ? (
-          <div className="mb-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm text-accent">
-            {messageMap[flashKey]}
-          </div>
-        ) : null}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-neutral-500">현재 필터 기준으로 CSV 다운로드가 가능합니다.</p>
           <a

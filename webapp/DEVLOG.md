@@ -1,5 +1,54 @@
 # Webapp 개발 로그
 
+## 2026-03-15: GA4 Analytics 통합
+
+### 신규 파일
+| 파일 | 타입 | 역할 |
+|------|------|------|
+| `components/analytics.tsx` | client | GA4 스크립트 로드 + page_view 추적 + 플래시→이벤트 변환 |
+| `types/gtag.d.ts` | type | window.gtag / window.dataLayer 타입 선언 |
+
+### 수정된 파일
+| 파일 | 변경 내용 |
+|------|----------|
+| `app/layout.tsx` | `<Suspense><Analytics /></Suspense>` 삽입 |
+| `components/period-filter.tsx` | `window.gtag?.("event", "dashboard_filter")` 추가 |
+| `components/auto-submit-select.tsx` | `window.gtag?.("event", "match_filter")` 추가 |
+| `components/delete-match-button.tsx` | `window.gtag?.("event", "match_delete_confirm")` 추가 |
+| `.env.example` | `NEXT_PUBLIC_GA_ID=""` 추가 |
+
+### 이벤트 택소노미
+| 이벤트명 | 트리거 | 방식 | 파라미터 |
+|----------|--------|------|----------|
+| `page_view` | 모든 페이지 전환 | Analytics usePathname | `page_path` |
+| `match_create` | 경기 생성 | 플래시 `record_created` | — |
+| `match_update` | 경기 수정 | 플래시 `record_updated` | — |
+| `match_delete` | 경기 삭제 | 플래시 `record_deleted` | — |
+| `match_delete_confirm` | 삭제 확인 클릭 | DeleteMatchButton onClick | — |
+| `deck_create` | 덱 추가 | 플래시 (한국어) | — |
+| `deck_toggle` | 덱 활성/비활성 | 플래시 (한국어) | — |
+| `game_create` | 카드게임 추가 | 플래시 (한국어) | — |
+| `game_update` | 카드게임 수정 | 플래시 (한국어) | — |
+| `game_delete` | 카드게임 삭제 | 플래시 (한국어) | — |
+| `dashboard_filter` | 기간 필터 변경 | PeriodFilter | `period` |
+| `match_filter` | 기록 필터 변경 | AutoSubmitSelect | `filter_type` |
+
+### 아키텍처 결정
+- **플래시 메시지 패턴**: Server Action → `redirect(?message=key)` → 클라이언트 `Analytics`에서 `FLASH_EVENT_MAP`으로 이벤트명 매핑 → `replaceState`로 URL 정리
+- **`send_page_view: false`**: gtag config에서 비활성화, useEffect로 수동 발화 (중복 방지)
+- **`Suspense` 필수**: `useSearchParams()` 사용으로 Next.js 15 요구사항
+- **`window.gtag?.()` 가드**: `NEXT_PUBLIC_GA_ID` 미설정 시 전체 비활성 (개발환경 안전)
+- **활성화**: `.env.local`에 `NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX` 설정
+
+### 플래시 키 매핑 (Analytics 내부)
+```
+matches: record_created → match_create, record_updated → match_update, record_deleted → match_delete
+decks: "덱을 추가했습니다." → deck_create, "덱을 다시 활성화했습니다."/"덱을 비활성화했습니다." → deck_toggle
+games: "카드게임 카테고리를 추가했습니다." → game_create, "카드게임 이름을 수정했습니다." → game_update, "카드게임 카테고리를 삭제했습니다." → game_delete
+```
+
+---
+
 ## 2026-03-15: UI/UX 개선 Phase 1
 
 ### 신규 컴포넌트 (7개)
