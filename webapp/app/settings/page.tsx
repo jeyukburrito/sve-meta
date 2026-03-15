@@ -16,18 +16,6 @@ export default async function SettingsPage() {
     <AppShell title="설정" description="계정, 데이터, 카드게임 구성을 여기서 관리합니다." headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       <section className="space-y-4">
         <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">프로필</h2>
-          <p className="mt-2 text-sm text-muted">
-            {user.email ?? "현재 로그인한 계정"} 정보를 확인합니다.
-          </p>
-          <Link
-            href="/settings/profile"
-            className="mt-4 inline-flex rounded-full border border-line px-4 py-2 text-sm font-medium"
-          >
-            프로필 열기
-          </Link>
-        </article>
-        <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
           <h2 className="text-lg font-semibold">카드게임 관리</h2>
           <p className="mt-2 text-sm text-muted">추적할 카드게임 카테고리를 관리합니다.</p>
           <Link

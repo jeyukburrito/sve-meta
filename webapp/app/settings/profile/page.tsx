@@ -1,7 +1,10 @@
 import { AppShell } from "@/components/app-shell";
+import { DeleteAccountButton } from "@/components/delete-account-button";
 import { HeaderActions } from "@/components/header-actions";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+import { deleteAccount } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +58,12 @@ export default async function ProfilePage() {
               <dd className="font-medium">{formatDate(profile?.createdAt ?? null)}</dd>
             </div>
           </dl>
+          <form action={deleteAccount} className="mt-6 border-t border-line pt-4">
+            <p className="mb-3 text-sm text-muted">
+              회원 탈퇴 시 계정, 카드게임, 덱, 경기 기록이 모두 삭제되며 복구할 수 없습니다.
+            </p>
+            <DeleteAccountButton />
+          </form>
         </article>
       </section>
     </AppShell>

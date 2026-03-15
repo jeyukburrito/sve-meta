@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AppShell } from "@/components/app-shell";
 import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
@@ -50,8 +52,14 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   return (
     <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
       {isContinue && roundNumber ? (
-        <div className="mb-4 rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm font-medium text-accent">
-          {continueEvent === "cs" ? "CS" : "매장대회"} 라운드 {roundNumber} 입력 중
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm font-medium text-accent">
+          <span>{continueEvent === "cs" ? "CS" : "매장대회"} 라운드 {roundNumber} 입력 중</span>
+          <Link
+            href="/matches"
+            className="rounded-full border border-accent/30 px-3 py-1 text-xs transition-colors hover:bg-accent/10"
+          >
+            대회 종료
+          </Link>
         </div>
       ) : null}
       <form

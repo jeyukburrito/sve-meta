@@ -7,9 +7,9 @@ type EventCategorySelectProps = {
 };
 
 const CATEGORIES = [
-  { value: "friendly", label: "친선전", icon: "⚔️" },
-  { value: "shop", label: "매장대회", icon: "🏪" },
-  { value: "cs", label: "CS", icon: "🏆" },
+  { value: "friendly", label: "친선전" },
+  { value: "shop", label: "매장대회" },
+  { value: "cs", label: "CS" },
 ] as const;
 
 export function EventCategorySelect({ defaultValue = "friendly" }: EventCategorySelectProps) {
@@ -30,17 +30,11 @@ export function EventCategorySelect({ defaultValue = "friendly" }: EventCategory
                 : "border-line text-muted"
             }`}
           >
-            <span className="mr-1">{cat.icon}</span>
             {cat.label}
           </button>
         ))}
       </div>
       <input type="hidden" name="eventCategory" value={selected} />
-      {selected !== "friendly" ? (
-        <p className="text-xs text-muted">
-          대회 기록은 저장 후 다음 라운드를 이어서 입력할 수 있습니다.
-        </p>
-      ) : null}
     </div>
   );
 }
