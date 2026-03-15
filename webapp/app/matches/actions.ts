@@ -96,6 +96,27 @@ export async function createMatchResult(formData: FormData) {
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
+
+  // 대회 모드: 저장 후 다음 라운드 입력으로 리다이렉트
+  if (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs") {
+    const todayCount = await prisma.matchResult.count({
+      where: {
+        userId: user.id,
+        eventCategory: parsed.data.eventCategory,
+        playedAt: new Date(parsed.data.playedAt),
+      },
+    });
+    const sp = new URLSearchParams({
+      message: "record_created",
+      event: parsed.data.eventCategory,
+      date: parsed.data.playedAt,
+      gameId: parsed.data.gameId,
+      deckId: parsed.data.myDeckId,
+      round: String(todayCount + 1),
+    });
+    redirect(`/matches/new?${sp.toString()}`);
+  }
+
   redirect("/matches?message=record_created");
 }
 

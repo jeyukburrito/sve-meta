@@ -62,7 +62,9 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters) 
     include: {
       myDeck: {
         select: {
+          id: true,
           name: true,
+          gameId: true,
           game: {
             select: {
               name: true,

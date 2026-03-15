@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
@@ -19,7 +20,16 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   const display = getUserDisplayInfo(user);
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
-  const today = new Date().toISOString().slice(0, 10);
+
+  // 연속 입력 모드: 이전 대회 기록 저장 후 날짜/덱/대회분류 유지
+  const continueEvent = typeof params?.event === "string" ? params.event : undefined;
+  const continueDate = typeof params?.date === "string" ? params.date : undefined;
+  const continueDeck = typeof params?.deckId === "string" ? params.deckId : undefined;
+  const continueGame = typeof params?.gameId === "string" ? params.gameId : undefined;
+  const roundNumber = typeof params?.round === "string" ? parseInt(params.round, 10) : undefined;
+  const isContinue = continueEvent === "shop" || continueEvent === "cs";
+
+  const today = continueDate ?? new Date().toISOString().slice(0, 10);
   const decks = await prisma.deck.findMany({
     where: {
       userId: user.id,
@@ -39,6 +49,11 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
 
   return (
     <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
+      {isContinue && roundNumber ? (
+        <div className="mb-4 rounded-2xl border border-accent/20 bg-accent/5 px-4 py-3 text-sm font-medium text-accent">
+          {continueEvent === "cs" ? "CS" : "매장대회"} 라운드 {roundNumber} 입력 중
+        </div>
+      ) : null}
       <form
         action={createMatchResult}
         className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
@@ -48,6 +63,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             {errorMessage}
           </div>
         ) : null}
+        <EventCategorySelect defaultValue={continueEvent ?? "friendly"} />
         <label className="grid gap-2 text-sm font-medium">
           날짜
           <input
@@ -65,6 +81,8 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             gameId: deck.gameId,
             gameName: deck.game.name,
           }))}
+          defaultGameId={continueGame}
+          defaultDeckId={continueDeck}
         />
         <label className="grid gap-2 text-sm font-medium">
           상대 덱
@@ -74,19 +92,6 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             required
             className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
-        </label>
-        <label className="grid gap-2 text-sm font-medium">
-          대회 분류
-          <select
-            name="eventCategory"
-            defaultValue="friendly"
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="friendly">친선전</option>
-            <option value="shop">매장대회</option>
-            <option value="cs">CS</option>
-          </select>
         </label>
         <MatchResultInput />
         <label className="grid gap-2 text-sm font-medium">
@@ -112,7 +117,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
           메모
           <textarea
             name="memo"
-            rows={4}
+            rows={2}
             className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
@@ -122,7 +127,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
               먼저 설정에서 카드게임과 내 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
             </p>
           ) : null}
-          <SubmitButton label="결과 저장" disabled={decks.length === 0} />
+          <SubmitButton label={isContinue ? `라운드 ${roundNumber ?? ""} 저장` : "결과 저장"} disabled={decks.length === 0} />
         </div>
       </form>
     </AppShell>
