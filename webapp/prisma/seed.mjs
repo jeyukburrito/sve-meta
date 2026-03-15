@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 const seedUserId = process.env.DEV_SEED_USER_ID ?? "11111111-1111-1111-1111-111111111111";
 const seedUserEmail = process.env.DEV_SEED_USER_EMAIL ?? "dev@example.com";
+const defaultGameName = "Shadowverse EVOLVE";
 
 const sampleDecks = [
   {
@@ -37,21 +38,38 @@ async function main() {
     },
   });
 
+  const defaultGame = await prisma.game.upsert({
+    where: {
+      userId_name: {
+        userId: seedUserId,
+        name: defaultGameName,
+      },
+    },
+    update: {},
+    create: {
+      userId: seedUserId,
+      name: defaultGameName,
+    },
+  });
+
   for (const deck of sampleDecks) {
     await prisma.deck.upsert({
       where: {
-        userId_name: {
+        userId_gameId_name: {
           userId: seedUserId,
+          gameId: defaultGame.id,
           name: deck.name,
         },
       },
       update: {
+        gameId: defaultGame.id,
         color: deck.color,
         memo: deck.memo,
         isActive: true,
       },
       create: {
         userId: seedUserId,
+        gameId: defaultGame.id,
         name: deck.name,
         color: deck.color,
         memo: deck.memo,
@@ -59,7 +77,9 @@ async function main() {
     });
   }
 
-  console.log(`Seeded local user ${seedUserEmail} with ${sampleDecks.length} decks.`);
+  console.log(
+    `Seeded local user ${seedUserEmail} with ${defaultGameName} and ${sampleDecks.length} decks.`,
+  );
 }
 
 main()

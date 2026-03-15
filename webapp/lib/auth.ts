@@ -1,7 +1,27 @@
 import { redirect } from "next/navigation";
 
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+
 import { isSupabaseConfigured } from "@/lib/env";
+import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+
+export async function syncUserProfile(user: SupabaseUser) {
+  await prisma.user.upsert({
+    where: {
+      id: user.id,
+    },
+    update: {
+      email: user.email ?? "",
+      name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
+    },
+    create: {
+      id: user.id,
+      email: user.email ?? "",
+      name: user.user_metadata?.name ?? user.user_metadata?.full_name ?? null,
+    },
+  });
+}
 
 export async function requireUser() {
   if (!isSupabaseConfigured) {
@@ -16,6 +36,8 @@ export async function requireUser() {
   if (!user) {
     redirect("/login");
   }
+
+  await syncUserProfile(user);
 
   return user;
 }

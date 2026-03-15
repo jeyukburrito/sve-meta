@@ -1,41 +1,58 @@
 import { AppShell } from "@/components/app-shell";
-import { StatCard } from "@/components/stat-card";
+import { DashboardCharts } from "@/components/dashboard-charts";
+import { PeriodFilter } from "@/components/period-filter";
 import { requireUser } from "@/lib/auth";
+import { buildDonutData, filterByPeriod } from "@/lib/dashboard";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const stats = [
-  { label: "전체 승률", value: "0%", hint: "기록이 쌓이면 자동 계산됩니다." },
-  { label: "최근 7일", value: "0전 0승", hint: "주간 메타 감각을 빠르게 확인합니다." },
-  { label: "선공 승률", value: "0%", hint: "선공/후공 분리 통계를 별도로 집계합니다." },
-  { label: "BO3 승률", value: "0%", hint: "매치 기준 성과를 확인합니다." },
-];
+type DashboardPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default async function DashboardPage() {
-  await requireUser();
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const user = await requireUser();
+  const params = searchParams ? await searchParams : undefined;
+  const period = typeof params?.period === "string" ? params.period : "all";
+  const from = typeof params?.from === "string" ? params.from : undefined;
+  const to = typeof params?.to === "string" ? params.to : undefined;
+
+  const rows = await prisma.matchResult.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      playedAt: "desc",
+    },
+    include: {
+      myDeck: {
+        select: {
+          name: true,
+          game: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const filtered = filterByPeriod(rows, { period, from, to });
+  const { myDeckSlices, opponentSlices, totalMatches } = buildDonutData(filtered);
 
   return (
-    <AppShell title="대시보드" description="기본 통계 요약과 최근 전적 흐름을 확인합니다.">
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
-        ))}
+    <AppShell title="대시보드" description="기간별 덱 분포와 상대 덱 통계를 확인합니다.">
+      <section className="mb-6">
+        <PeriodFilter activePeriod={period} defaultFrom={from} defaultTo={to} />
       </section>
 
-      <section className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">자주 만난 상대 덱</h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            MVP에서는 서버 계산 결과를 여기에 표시합니다.
-          </p>
-        </article>
-        <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">내 덱별 승률</h2>
-          <p className="mt-2 text-sm text-neutral-600">
-            등록한 덱 기준으로 누적 승률을 요약합니다.
-          </p>
-        </article>
-      </section>
+      <DashboardCharts
+        myDeckSlices={myDeckSlices}
+        opponentSlices={opponentSlices}
+        totalMatches={totalMatches}
+      />
     </AppShell>
   );
 }

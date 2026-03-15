@@ -14,6 +14,7 @@ model User {
   name       String?
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
+  games      Game[]
   decks      Deck[]
   matches    MatchResult[]
   tags       Tag[]
@@ -21,9 +22,24 @@ model User {
   @@map("users")
 }
 
+model Game {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decks      Deck[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("games")
+}
+
 model Deck {
   id         String        @id @default(uuid()) @db.Uuid
   userId     String        @db.Uuid
+  gameId     String        @db.Uuid
   name       String
   color      String?
   memo       String?
@@ -31,10 +47,11 @@ model Deck {
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
   user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game       Game          @relation(fields: [gameId], references: [id], onDelete: Restrict)
   matches    MatchResult[]
 
-  @@unique([userId, name])
-  @@index([userId, isActive])
+  @@unique([userId, gameId, name])
+  @@index([userId, gameId, isActive])
   @@map("decks")
 }
 
@@ -45,11 +62,11 @@ model MatchResult {
   playedAt         DateTime
   opponentDeckName String
   playOrder        PlayOrder
+  didChoosePlayOrder Boolean        @default(false)
   matchFormat      MatchFormat
   wins             Int
   losses           Int
   isMatchWin       Boolean
-  eventType        EventType
   memo             String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
@@ -94,11 +111,4 @@ enum PlayOrder {
 enum MatchFormat {
   bo1
   bo3
-}
-
-enum EventType {
-  ranked
-  shop
-  friendly
-  tournament
 }

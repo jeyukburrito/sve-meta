@@ -14,6 +14,7 @@ function withMessage(type: "error" | "message", value: string) {
 export async function createDeck(formData: FormData) {
   const user = await requireUser();
   const parsed = createDeckSchema.safeParse({
+    gameId: formData.get("gameId"),
     name: formData.get("name"),
     color: formData.get("color"),
     memo: formData.get("memo"),
@@ -23,10 +24,25 @@ export async function createDeck(formData: FormData) {
     redirect(withMessage("error", "덱 이름 또는 입력값을 확인해 주세요."));
   }
 
+  const game = await prisma.game.findFirst({
+    where: {
+      id: parsed.data.gameId,
+      userId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!game) {
+    redirect(withMessage("error", "카드게임 카테고리를 먼저 선택해 주세요."));
+  }
+
   try {
     await prisma.deck.create({
       data: {
         userId: user.id,
+        gameId: parsed.data.gameId,
         name: parsed.data.name,
         color: parsed.data.color || null,
         memo: parsed.data.memo || null,
@@ -42,13 +58,16 @@ export async function createDeck(formData: FormData) {
     redirect(
       withMessage(
         "error",
-        isUniqueViolation ? "같은 이름의 덱이 이미 있습니다." : "덱 저장에 실패했습니다.",
+        isUniqueViolation ? "같은 카드게임 안에 같은 이름의 덱이 이미 있습니다." : "덱 저장에 실패했습니다.",
       ),
     );
   }
 
+  revalidatePath("/settings/games");
   revalidatePath("/settings/decks");
   revalidatePath("/matches/new");
+  revalidatePath("/matches");
+  revalidatePath("/dashboard");
   redirect(withMessage("message", "덱을 추가했습니다."));
 }
 

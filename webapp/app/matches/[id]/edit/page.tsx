@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
 import { AppShell } from "@/components/app-shell";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { MatchResultInput } from "@/components/match-result-input";
@@ -5,48 +8,83 @@ import { SubmitButton } from "@/components/submit-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-import { createMatchResult } from "../actions";
+import { updateMatchResult } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
-type NewMatchPageProps = {
+type EditMatchPageProps = {
+  params: Promise<{
+    id: string;
+  }>;
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function NewMatchPage({ searchParams }: NewMatchPageProps) {
+export default async function EditMatchPage({ params, searchParams }: EditMatchPageProps) {
   const user = await requireUser();
-  const params = searchParams ? await searchParams : undefined;
-  const errorMessage = typeof params?.error === "string" ? params.error : undefined;
-  const today = new Date().toISOString().slice(0, 10);
-  const decks = await prisma.deck.findMany({
-    where: {
-      userId: user.id,
-      isActive: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
-    include: {
-      game: {
-        select: {
-          name: true,
+  const { id } = await params;
+  const query = searchParams ? await searchParams : undefined;
+  const errorMessage = typeof query?.error === "string" ? query.error : undefined;
+  const successMessage = typeof query?.message === "string" ? query.message : undefined;
+
+  const [match, decks] = await Promise.all([
+    prisma.matchResult.findFirst({
+      where: {
+        id,
+        userId: user.id,
+      },
+      include: {
+        myDeck: {
+          select: {
+            gameId: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.deck.findMany({
+      where: {
+        userId: user.id,
+        isActive: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      include: {
+        game: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  if (!match) {
+    notFound();
+  }
 
   return (
-    <AppShell
-      title="결과 입력"
-      description="모바일에서 빠르게 기록하는 것이 최우선입니다."
-    >
+    <AppShell title="기록 수정" description="기존 대전 기록을 수정하고 저장합니다.">
+      <div className="mb-4">
+        <Link
+          href="/matches"
+          className="inline-flex text-sm font-medium text-neutral-600 underline-offset-4 hover:underline"
+        >
+          기록 목록으로 돌아가기
+        </Link>
+      </div>
       <form
-        action={createMatchResult}
+        action={updateMatchResult}
         className="grid gap-4 rounded-3xl border border-line bg-white p-5 shadow-sm md:grid-cols-2"
       >
+        <input type="hidden" name="matchId" value={match.id} />
         {errorMessage ? (
           <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">
             {errorMessage}
+          </div>
+        ) : null}
+        {successMessage ? (
+          <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm text-accent md:col-span-2">
+            {successMessage}
           </div>
         ) : null}
         <label className="grid gap-2 text-sm font-medium">
@@ -55,7 +93,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             name="playedAt"
             type="date"
             required
-            defaultValue={today}
+            defaultValue={match.playedAt.toISOString().slice(0, 10)}
             className="rounded-2xl border border-line px-4 py-3"
           />
         </label>
@@ -66,6 +104,8 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             gameId: deck.gameId,
             gameName: deck.game.name,
           }))}
+          defaultGameId={match.myDeck.gameId}
+          defaultDeckId={match.myDeckId}
         />
         <label className="grid gap-2 text-sm font-medium">
           상대 덱
@@ -73,13 +113,22 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             name="opponentDeckName"
             type="text"
             required
+            defaultValue={match.opponentDeckName}
             className="rounded-2xl border border-line px-4 py-3"
           />
         </label>
-        <MatchResultInput />
+        <MatchResultInput
+          defaultFormat={match.matchFormat}
+          defaultResult={match.isMatchWin ? "win" : "lose"}
+        />
         <label className="grid gap-2 text-sm font-medium">
           선공 / 후공
-          <select name="playOrder" className="rounded-2xl border border-line px-4 py-3" required>
+          <select
+            name="playOrder"
+            defaultValue={match.playOrder}
+            className="rounded-2xl border border-line px-4 py-3"
+            required
+          >
             <option value="first">선공</option>
             <option value="second">후공</option>
           </select>
@@ -88,7 +137,7 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
           선후공 결정여부
           <select
             name="didChoosePlayOrder"
-            defaultValue="false"
+            defaultValue={String(match.didChoosePlayOrder)}
             className="rounded-2xl border border-line px-4 py-3"
             required
           >
@@ -101,17 +150,13 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
           <textarea
             name="memo"
             rows={4}
+            defaultValue={match.memo ?? ""}
             className="rounded-2xl border border-line px-4 py-3"
-            placeholder="후공에서 mulligan 판단이 애매했음"
+            placeholder="운영 메모"
           />
         </label>
         <div className="md:col-span-2">
-          {decks.length === 0 ? (
-            <p className="mb-3 text-sm text-danger">
-              먼저 설정에서 카드게임과 내 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
-            </p>
-          ) : null}
-          <SubmitButton label="결과 저장" disabled={decks.length === 0} />
+          <SubmitButton label="수정 저장" />
         </div>
       </form>
     </AppShell>

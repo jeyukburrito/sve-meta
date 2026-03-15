@@ -1,6 +1,6 @@
 # Webapp Build Status
 
-Last updated: 2026-03-14
+Last updated: 2026-03-15
 
 ## Current Phase: Phase 2 — Core Screens and CRUD
 
@@ -18,20 +18,27 @@ Last updated: 2026-03-14
 ### Phase 2: Core Screens
 - [ ] `/login`
 - [ ] `/dashboard`
-- [ ] `/matches/new`
-- [ ] `/matches` (history + filters)
-- [ ] `/settings` + `/settings/decks`
+- [x] `/matches/new`
+- [x] `/matches` (history + filters)
+- [x] `/matches/[id]/edit`
+- [x] `/settings` + `/settings/decks`
+- [x] `/settings/games`
 
 Phase 2 note:
 - Route skeletons and placeholder UI for all MVP screens have been created under `webapp/app/`.
 - Deck management is now connected to Supabase via Prisma on `/settings/decks`.
+- Card game category management is now connected on `/settings/games`.
 - `/matches/new` now reads the authenticated user's active deck list from the database.
-- Match create/update mutations are not connected yet.
+- Decks are now categorized by user-defined card game names.
+- Match creation and history listing are now connected to Supabase.
+- Match update/delete are now connected to Supabase with owner checks.
+- Tag wiring is not connected yet.
 
 ### Phase 3: Stats and Export
-- [ ] Win-rate cards (overall, 7/30 days, first/second, BO1/BO3)
-- [ ] Matchup and deck-level summary tables
-- [ ] CSV export from filtered results
+- [x] Win-rate cards (overall, 7/30 days, first/second, BO1/BO3)
+- [x] Matchup and deck-level summary tables
+- [x] First-pass dashboard charts (play order, BO format, 30-day trend)
+- [x] CSV export from filtered results
 
 ### Phase 4: QA and Release
 - [ ] Restrict access to approved accounts
@@ -51,9 +58,18 @@ Phase 2 note:
 | 2026-03-13 | Added step-by-step Supabase setup and QA guide for dashboard configuration | Codex CLI |
 | 2026-03-14 | Connected Supabase project, confirmed Prisma sync, applied RLS, and verified seed data (`users=1`, `decks=3`) | Codex CLI |
 | 2026-03-14 | Connected deck management page to Supabase and aligned `/matches/new` with `Deck` FK selection | Codex CLI |
+| 2026-03-14 | Added authenticated match create flow and real history list with basic filters | Codex CLI |
+| 2026-03-14 | Added authenticated match edit/delete flow and edit route | Codex CLI |
+| 2026-03-14 | Replaced dashboard placeholders with real server-side aggregate metrics and summary tables | Codex CLI |
+| 2026-03-14 | Added first-pass Recharts visualizations to the dashboard | Codex CLI |
+| 2026-03-14 | Generalized the app for multiple card games with user-defined game categories and deck grouping | Codex CLI |
+| 2026-03-14 | Applied follow-up review fixes: delete confirmation, safer match update, generic shell branding, game rename/delete | Codex CLI |
+| 2026-03-15 | Simplified match entry to date/game/deck/opponent/format/result/play order/play-order choice and removed event type | Codex CLI |
+| 2026-03-15 | Added CSV export route with shared match filters and a minimal Vercel deployment guide | Codex CLI |
 
 ## Code Review
-- 2026-03-13: Phase 0–1 검수 완료 → `REVIEW_2026-03-13.md` 참조. HIGH 1건(users INSERT RLS)은 반영 완료. MID 2건 중 폰트 로드는 현재 빌드 환경 제약으로 보류, 나머지 MID/LOW는 Phase 2에서 처리 예정.
-- 2026-03-14: Phase 2 중간 검수 → `REVIEW_2026-03-14.md` 참조. HIGH 1건(`/matches/new` 폼 필드 name/value 누락). 덱 관리 CRUD, RLS 정합성은 양호.
+- 2026-03-13: Phase 0–1 검수 완료 → `REVIEW_2026-03-13.md` 참조. HIGH 1건(users INSERT RLS)은 반영 완료.
+- 2026-03-14 (1차): Phase 2 중간 검수 → `REVIEW_2026-03-14.md` 참조. HIGH 1건(name/value 누락)은 반영 완료.
+- 2026-03-14 (2차): Phase 2–3 종합 검수 → `REVIEW_2026-03-14_phase2.md` 참조. HIGH 1건과 주요 MID 항목(delete 확인, updateMany 전환, 헤더 일반화, Game 수정/삭제)은 반영 완료.
 
 ## Blockers

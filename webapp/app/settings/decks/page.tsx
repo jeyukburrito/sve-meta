@@ -1,4 +1,6 @@
 import { AppShell } from "@/components/app-shell";
+import { ColorPicker } from "@/components/color-picker";
+import { SubmitButton } from "@/components/submit-button";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -15,12 +17,29 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
   const successMessage = typeof params?.message === "string" ? params.message : undefined;
-  const decks = await prisma.deck.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],
-  });
+  const [games, decks] = await Promise.all([
+    prisma.game.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
+    prisma.deck.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],
+      include: {
+        game: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    }),
+  ]);
 
   return (
     <AppShell title="내 덱 관리" description="입력 화면에서 선택할 덱 목록을 유지합니다.">
@@ -28,7 +47,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
         <article className="rounded-3xl border border-line bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">덱 추가</h2>
           <p className="mt-2 text-sm text-neutral-600">
-            경기 입력 화면에서 선택할 덱을 먼저 등록합니다. 이름은 사용자별로 유일해야 합니다.
+            경기 입력 화면에서 선택할 덱을 먼저 등록합니다. 카드게임 카테고리 안에서 이름이 유일해야 합니다.
           </p>
           {errorMessage ? (
             <div className="mt-4 rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
@@ -42,6 +61,22 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
           ) : null}
           <form action={createDeck} className="mt-5 grid gap-4">
             <label className="grid gap-2 text-sm font-medium">
+              카드게임
+              <select
+                name="gameId"
+                required
+                defaultValue=""
+                className="rounded-2xl border border-line px-4 py-3"
+              >
+                <option value="">카드게임을 선택하세요</option>
+                {games.map((game) => (
+                  <option key={game.id} value={game.id}>
+                    {game.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-medium">
               덱 이름
               <input
                 name="name"
@@ -52,16 +87,7 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                 placeholder="로얄 미드레인지"
               />
             </label>
-            <label className="grid gap-2 text-sm font-medium">
-              대표 색상
-              <input
-                name="color"
-                type="text"
-                maxLength={7}
-                className="rounded-2xl border border-line px-4 py-3"
-                placeholder="#0e6d53"
-              />
-            </label>
+            <ColorPicker name="color" />
             <label className="grid gap-2 text-sm font-medium">
               메모
               <textarea
@@ -73,12 +99,12 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
               />
             </label>
             <div>
-              <button
-                type="submit"
-                className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white"
-              >
-                덱 저장
-              </button>
+              {games.length === 0 ? (
+                <p className="mb-3 text-sm text-danger">
+                  먼저 카드게임 카테고리를 1개 이상 등록해야 덱을 만들 수 있습니다.
+                </p>
+              ) : null}
+              <SubmitButton label="덱 저장" disabled={games.length === 0} />
             </div>
           </form>
         </article>
@@ -113,6 +139,9 @@ export default async function DeckSettingsPage({ searchParams }: DeckSettingsPag
                       style={{ backgroundColor: deck.color ?? "#d8cdbf" }}
                     />
                     <span className="font-medium">{deck.name}</span>
+                    <span className="rounded-full bg-paper px-2 py-1 text-xs font-medium text-neutral-600">
+                      {deck.game.name}
+                    </span>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-semibold ${
                         deck.isActive
