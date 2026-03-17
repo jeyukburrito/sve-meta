@@ -84,6 +84,16 @@ export async function listMatchesForUser(userId: string, filters: MatchFilters, 
           },
         },
       },
+      tags: {
+        select: {
+          tag: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
       tournamentSession: {
         select: {
           id: true,

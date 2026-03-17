@@ -4,6 +4,7 @@ import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
 import { SubmitButton } from "@/components/submit-button";
+import { TagSelector } from "@/components/tag-selector";
 import { TournamentBanner } from "@/components/tournament-banner";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -22,7 +23,6 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
   const params = searchParams ? await searchParams : undefined;
   const errorMessage = typeof params?.error === "string" ? params.error : undefined;
 
-  // 연속 입력 모드: 이전 대회 기록 저장 후 날짜/덱/대회분류 유지
   const continueEvent = typeof params?.event === "string" ? params.event : undefined;
   const continueDate = typeof params?.date === "string" ? params.date : undefined;
   const continueDeck = typeof params?.deckId === "string" ? params.deckId : undefined;
@@ -35,9 +35,9 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
 
   const eventLabel = continueEvent === "cs" ? "CS" : "매장대회";
   const phaseLabel = isElimination ? "본선" : "예선";
-
   const today = continueDate ?? new Date().toISOString().slice(0, 10);
-  const [decks, continuedTournament, phaseCount] = await Promise.all([
+
+  const [decks, tags, continuedTournament, phaseCount] = await Promise.all([
     prisma.deck.findMany({
       where: {
         userId: user.id,
@@ -52,6 +52,18 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             name: true,
           },
         },
+      },
+    }),
+    prisma.tag.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
       },
     }),
     continueTournamentId
@@ -76,34 +88,38 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
         })
       : Promise.resolve(0),
   ]);
+
   const isActiveTournament = Boolean(continuedTournament && !continuedTournament.endedAt);
   const isEndedTournament = Boolean(continuedTournament?.endedAt);
   const hasInvalidTournamentContinuation = Boolean(continueTournamentId && !continuedTournament);
   const activeTournamentId =
     continuedTournament && !continuedTournament.endedAt ? continuedTournament.id : null;
   const roundNumber = isActiveTournament ? phaseCount + 1 : undefined;
-
-  // 토너먼트 진행 링크 생성 (예선→본선 전환)
-  const eliminationUrl = isContinue && isActiveTournament
-    ? `/matches/new?${new URLSearchParams({
-        event: continueEvent!,
-        date: continueDate ?? today,
-        gameId: continueGame ?? "",
-        deckId: continueDeck ?? "",
-        phase: "elimination",
-        tournamentId: continueTournamentId ?? "",
-      }).toString()}`
-    : null;
-  const submitDisabled = decks.length === 0 || isEndedTournament || hasInvalidTournamentContinuation;
+  const eliminationUrl =
+    isContinue && isActiveTournament
+      ? `/matches/new?${new URLSearchParams({
+          event: continueEvent!,
+          date: continueDate ?? today,
+          gameId: continueGame ?? "",
+          deckId: continueDeck ?? "",
+          phase: "elimination",
+          tournamentId: continueTournamentId ?? "",
+        }).toString()}`
+      : null;
+  const submitDisabled =
+    decks.length === 0 || isEndedTournament || hasInvalidTournamentContinuation;
   const submitLabel =
     isContinue && roundNumber
-      ? `${phaseLabel} R${roundNumber} 저장`
+      ? `${phaseLabel} R${roundNumber} 기록 저장`
       : isEndedTournament || hasInvalidTournamentContinuation
         ? "대회 종료됨"
         : "결과 저장";
 
   return (
-    <AppShell title="결과 입력" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell
+      title="결과 입력"
+      headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}
+    >
       {isContinue && activeTournamentId && roundNumber ? (
         <TournamentBanner
           eventLabel={eventLabel}
@@ -172,13 +188,17 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
         <MatchResultInput />
         <label className="grid gap-2 text-sm font-medium">
           선공 / 후공
-          <select name="playOrder" className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink" required>
+          <select
+            name="playOrder"
+            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            required
+          >
             <option value="first">선공</option>
             <option value="second">후공</option>
           </select>
         </label>
         <label className="grid gap-2 text-sm font-medium">
-          선후공 결정여부
+          선후공 결정 여부
           <select
             name="didChoosePlayOrder"
             defaultValue="false"
@@ -197,16 +217,14 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
             className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
+        <TagSelector tags={tags} />
         <div className="md:col-span-2">
           {decks.length === 0 ? (
             <p className="mb-3 text-sm text-danger">
-              먼저 설정에서 카드게임과 내 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
+              먼저 설정에서 카드게임과 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
             </p>
           ) : null}
-          <SubmitButton
-            label={submitLabel}
-            disabled={submitDisabled}
-          />
+          <SubmitButton label={submitLabel} disabled={submitDisabled} />
         </div>
       </form>
     </AppShell>

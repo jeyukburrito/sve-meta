@@ -63,7 +63,7 @@ export function GameDeckFields({
           className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           required
         >
-          <option value="">카드 게임을 선택하세요</option>
+          <option value="">카드 게임을 선택해 주세요.</option>
           {availableGames.map((game) => (
             <option key={game.id} value={game.id}>
               {game.name}
@@ -81,7 +81,7 @@ export function GameDeckFields({
           required
           disabled={!selectedGameId}
         >
-          <option value="">덱을 선택하세요</option>
+          <option value="">덱을 선택해 주세요.</option>
           {filteredDecks.map((deck) => (
             <option key={deck.id} value={deck.id}>
               {deck.name}

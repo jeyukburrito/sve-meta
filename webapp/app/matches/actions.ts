@@ -41,6 +41,24 @@ async function ensureOwnedActiveDeck(userId: string, deckId: string) {
   });
 }
 
+async function ensureOwnedTags(userId: string, tagIds: string[]) {
+  if (tagIds.length === 0) {
+    return [];
+  }
+
+  return prisma.tag.findMany({
+    where: {
+      userId,
+      id: {
+        in: tagIds,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+}
+
 function deriveScore(matchFormat: "bo1" | "bo3", result: "win" | "lose") {
   if (matchFormat === "bo1") {
     return result === "win" ? { wins: 1, losses: 0 } : { wins: 0, losses: 1 };
@@ -50,6 +68,12 @@ function deriveScore(matchFormat: "bo1" | "bo3", result: "win" | "lose") {
 }
 
 function parseMatchForm(formData: FormData) {
+  const tagIds = Array.from(
+    new Set(
+      formData.getAll("tagIds").flatMap((value) => (typeof value === "string" && value ? [value] : [])),
+    ),
+  );
+
   return matchResultSchema.safeParse({
     playedAt: formData.get("playedAt"),
     gameId: formData.get("gameId"),
@@ -63,7 +87,7 @@ function parseMatchForm(formData: FormData) {
     matchFormat: formData.get("matchFormat"),
     result: formData.get("result"),
     memo: formData.get("memo"),
-    tagIds: [],
+    tagIds,
   });
 }
 
@@ -160,14 +184,21 @@ export async function createMatchResult(formData: FormData) {
     redirect(newMatchRedirect("error", "입력값을 확인해 주세요."));
   }
 
-  const ownedDeck = await ensureOwnedActiveDeck(user.id, parsed.data.myDeckId);
+  const [ownedDeck, ownedTags] = await Promise.all([
+    ensureOwnedActiveDeck(user.id, parsed.data.myDeckId),
+    ensureOwnedTags(user.id, parsed.data.tagIds),
+  ]);
 
   if (!ownedDeck) {
     redirect(newMatchRedirect("error", "선택한 덱을 찾을 수 없거나 비활성 상태입니다."));
   }
 
   if (ownedDeck.gameId !== parsed.data.gameId) {
-    redirect(newMatchRedirect("error", "선택한 카드 게임과 덱이 일치하지 않습니다."));
+    redirect(newMatchRedirect("error", "선택한 게임과 덱이 일치하지 않습니다."));
+  }
+
+  if (ownedTags.length !== parsed.data.tagIds.length) {
+    redirect(newMatchRedirect("error", "선택한 태그를 사용할 수 없습니다."));
   }
 
   const score = deriveScore(parsed.data.matchFormat, parsed.data.result);
@@ -208,14 +239,21 @@ export async function createMatchResult(formData: FormData) {
       losses: score.losses,
       isMatchWin: parsed.data.result === "win",
       memo: parsed.data.memo || null,
+      tags: parsed.data.tagIds.length
+        ? {
+            createMany: {
+              data: parsed.data.tagIds.map((tagId) => ({ tagId })),
+            },
+          }
+        : undefined,
     },
   });
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
   revalidatePath("/matches/new");
+  revalidatePath("/settings/tags");
 
-  // 대회 모드: 저장 후 다음 라운드 입력으로 리다이렉트
   if (
     tournamentSessionId &&
     (parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs")
@@ -249,7 +287,7 @@ export async function updateMatchResult(formData: FormData) {
     redirect(editRedirect(matchId, "error", "입력값을 확인해 주세요."));
   }
 
-  const [ownedDeck, existingMatch] = await Promise.all([
+  const [ownedDeck, existingMatch, ownedTags] = await Promise.all([
     ensureOwnedActiveDeck(user.id, parsed.data.myDeckId),
     prisma.matchResult.findFirst({
       where: {
@@ -261,6 +299,7 @@ export async function updateMatchResult(formData: FormData) {
         tournamentSessionId: true,
       },
     }),
+    ensureOwnedTags(user.id, parsed.data.tagIds),
   ]);
 
   if (!existingMatch) {
@@ -272,7 +311,11 @@ export async function updateMatchResult(formData: FormData) {
   }
 
   if (ownedDeck.gameId !== parsed.data.gameId) {
-    redirect(editRedirect(matchId, "error", "선택한 카드 게임과 덱이 일치하지 않습니다."));
+    redirect(editRedirect(matchId, "error", "선택한 게임과 덱이 일치하지 않습니다."));
+  }
+
+  if (ownedTags.length !== parsed.data.tagIds.length) {
+    redirect(editRedirect(matchId, "error", "선택한 태그를 사용할 수 없습니다."));
   }
 
   const score = deriveScore(parsed.data.matchFormat, parsed.data.result);
@@ -284,7 +327,8 @@ export async function updateMatchResult(formData: FormData) {
       myDeckId: parsed.data.myDeckId,
       playedAt: parsed.data.playedAt,
       eventCategory: parsed.data.eventCategory,
-      tournamentSessionId: parsed.data.tournamentSessionId ?? existingMatch.tournamentSessionId ?? undefined,
+      tournamentSessionId:
+        parsed.data.tournamentSessionId ?? existingMatch.tournamentSessionId ?? undefined,
     });
 
     if (!resolved.ok) {
@@ -296,29 +340,48 @@ export async function updateMatchResult(formData: FormData) {
     tournamentSessionId = null;
   }
 
-  const result = await prisma.matchResult.updateMany({
-    where: {
-      id: matchId,
-      userId: user.id,
-    },
-    data: {
-      myDeckId: parsed.data.myDeckId,
-      tournamentSessionId,
-      playedAt: new Date(parsed.data.playedAt),
-      opponentDeckName: parsed.data.opponentDeckName,
-      eventCategory: parsed.data.eventCategory,
-      tournamentPhase:
-        parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs"
-          ? parsed.data.tournamentPhase ?? "swiss"
-          : null,
-      playOrder: parsed.data.playOrder,
-      didChoosePlayOrder: parsed.data.didChoosePlayOrder,
-      matchFormat: parsed.data.matchFormat,
-      wins: score.wins,
-      losses: score.losses,
-      isMatchWin: parsed.data.result === "win",
-      memo: parsed.data.memo || null,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.matchResult.updateMany({
+      where: {
+        id: matchId,
+        userId: user.id,
+      },
+      data: {
+        myDeckId: parsed.data.myDeckId,
+        tournamentSessionId,
+        playedAt: new Date(parsed.data.playedAt),
+        opponentDeckName: parsed.data.opponentDeckName,
+        eventCategory: parsed.data.eventCategory,
+        tournamentPhase:
+          parsed.data.eventCategory === "shop" || parsed.data.eventCategory === "cs"
+            ? parsed.data.tournamentPhase ?? "swiss"
+            : null,
+        playOrder: parsed.data.playOrder,
+        didChoosePlayOrder: parsed.data.didChoosePlayOrder,
+        matchFormat: parsed.data.matchFormat,
+        wins: score.wins,
+        losses: score.losses,
+        isMatchWin: parsed.data.result === "win",
+        memo: parsed.data.memo || null,
+      },
+    });
+
+    await tx.matchResultTag.deleteMany({
+      where: {
+        matchResultId: matchId,
+      },
+    });
+
+    if (parsed.data.tagIds.length > 0) {
+      await tx.matchResultTag.createMany({
+        data: parsed.data.tagIds.map((tagId) => ({
+          matchResultId: matchId,
+          tagId,
+        })),
+      });
+    }
+
+    return updated;
   });
 
   if (result.count === 0) {
@@ -328,6 +391,8 @@ export async function updateMatchResult(formData: FormData) {
   revalidatePath("/matches");
   revalidatePath(`/matches/${matchId}/edit`);
   revalidatePath("/dashboard");
+  revalidatePath("/matches/new");
+  revalidatePath("/settings/tags");
   redirect("/matches?message=record_updated");
 }
 
@@ -348,5 +413,6 @@ export async function deleteMatchResult(formData: FormData) {
 
   revalidatePath("/matches");
   revalidatePath("/dashboard");
+  revalidatePath("/settings/tags");
   redirect("/matches?message=record_deleted");
 }

@@ -11,6 +11,12 @@ type MatchRow = {
   playOrder: string;
   didChoosePlayOrder: boolean;
   memo: string | null;
+  tags: Array<{
+    tag: {
+      id: string;
+      name: string;
+    };
+  }>;
   tournamentSession: {
     id: string;
     endedAt: Date | null;
@@ -85,7 +91,6 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
     }
   }
 
-  // 대회 그룹 내 매치를 생성순 정렬 (라운드 순 = 입력 순)
   for (const group of tournamentMap.values()) {
     group.matches.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   }
@@ -95,6 +100,7 @@ export function groupMatchesForDisplay(matches: MatchRow[]): DisplayItem[] {
   for (const group of tournamentMap.values()) {
     items.push({ type: "tournament", group, sortDate: group.date });
   }
+
   for (const match of singles) {
     items.push({ type: "single", match, sortDate: match.playedAt });
   }

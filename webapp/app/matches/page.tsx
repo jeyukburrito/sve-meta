@@ -5,9 +5,9 @@ import { AutoSubmitSelect } from "@/components/auto-submit-select";
 import { DeleteMatchButton } from "@/components/delete-match-button";
 import { HeaderActions } from "@/components/header-actions";
 import { TournamentTimeline } from "@/components/tournament-timeline";
-import { groupMatchesForDisplay } from "@/lib/group-matches";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { formatRelativeDate } from "@/lib/format-date";
+import { groupMatchesForDisplay } from "@/lib/group-matches";
 import {
   MATCHES_PAGE_SIZE,
   countMatchesForUser,
@@ -15,6 +15,7 @@ import {
   listMatchesForUser,
   parseMatchFilters,
 } from "@/lib/matches";
+
 import { deleteMatchResult } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -40,10 +41,12 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
     countMatchesForUser(user.id, filters),
     listMatchesForUser(user.id, filters, currentPage),
   ]);
+
   const { games, decks } = filterOptions;
   const totalPages = Math.max(1, Math.ceil(totalCount / MATCHES_PAGE_SIZE));
   const prevPage = currentPage > 1 ? currentPage - 1 : null;
   const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+
   const buildPageHref = (page: number) => {
     const query = new URLSearchParams();
 
@@ -59,7 +62,10 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const displayItems = groupMatchesForDisplay(rows);
 
   return (
-    <AppShell title="기록 목록" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell
+      title="기록 목록"
+      headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}
+    >
       <section className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
         <form className="grid gap-3 md:grid-cols-4">
           <AutoSubmitSelect
@@ -79,7 +85,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
             defaultValue={deckIdQuery}
             className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
-            <option value="">내 덱 전체</option>
+            <option value="">덱 전체</option>
             {decks.map((deck) => (
               <option key={deck.id} value={deck.id}>
                 {deck.game.name} · {deck.name}
@@ -101,7 +107,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
             className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           >
             <option value="">분류 전체</option>
-            <option value="friendly">친선전</option>
+            <option value="friendly">친선</option>
             <option value="shop">매장대회</option>
             <option value="cs">CS</option>
           </AutoSubmitSelect>
@@ -117,7 +123,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
         </div>
         {displayItems.length === 0 ? (
           <article className="rounded-3xl border border-dashed border-line bg-surface p-6 text-sm text-muted shadow-sm">
-            아직 저장된 대전 기록이 없습니다.
+            아직 등록한 대전 기록이 없습니다.
           </article>
         ) : null}
         {displayItems.map((item) =>
@@ -134,9 +140,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm text-muted">
-                    {formatRelativeDate(item.match.playedAt)}
-                  </p>
+                  <p className="text-sm text-muted">{formatRelativeDate(item.match.playedAt)}</p>
                   <h2 className="mt-1 text-lg font-semibold">
                     {item.match.myDeck.name} vs {item.match.opponentDeckName}
                   </h2>
@@ -146,6 +150,18 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                     {item.match.playOrder === "first" ? "선공" : "후공"} · 선후공 결정{" "}
                     {item.match.didChoosePlayOrder ? "O" : "X"}
                   </p>
+                  {item.match.tags.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {item.match.tags.map(({ tag }) => (
+                        <span
+                          key={tag.id}
+                          className="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-muted"
+                        >
+                          #{tag.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                   {item.match.memo ? <p className="mt-2 text-sm text-muted">{item.match.memo}</p> : null}
                 </div>
                 <span

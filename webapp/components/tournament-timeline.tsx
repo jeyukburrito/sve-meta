@@ -26,7 +26,6 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
   const nextEliminationRound =
     group.matches.filter((match) => match.tournamentPhase === "elimination").length + 1;
 
-  // 예선/본선별 라운드 넘버링을 위한 카운터
   let swissIdx = 0;
   let elimIdx = 0;
 
@@ -36,7 +35,6 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
         isEnded ? "border-line bg-line/10" : "border-line bg-surface"
       }`}
     >
-      {/* 대회 헤더 */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -54,7 +52,7 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
           <p className="text-sm text-muted">{group.gameName}</p>
           {isEnded ? (
             <p className="mt-2 text-sm text-muted">
-              종료된 대회입니다. 기록은 나중에도 수정할 수 있습니다.
+              종료된 대회입니다. 기존 기록만 수정할 수 있습니다.
             </p>
           ) : null}
         </div>
@@ -68,30 +66,25 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
         </div>
       </div>
 
-      {/* 라운드 타임라인 */}
       <div className="relative mt-5 ml-3">
-        {/* 세로 연결선 */}
         <div className="absolute left-[5px] top-2 bottom-2 w-px bg-line" />
-
         <div className="space-y-0">
           {group.matches.map((match, idx) => {
             const isElim = match.tournamentPhase === "elimination";
             const prevMatch = idx > 0 ? group.matches[idx - 1] : null;
             const phaseChanged = prevMatch && prevMatch.tournamentPhase !== match.tournamentPhase;
 
-            // 라운드 번호 계산 (null은 swiss 취급)
             let roundNum: number;
             if (isElim) {
-              elimIdx++;
+              elimIdx += 1;
               roundNum = elimIdx;
             } else {
-              swissIdx++;
+              swissIdx += 1;
               roundNum = swissIdx;
             }
 
             return (
               <div key={match.id}>
-                {/* 본선 전환 라벨 */}
                 {showPhaseLabels && (idx === 0 || phaseChanged) ? (
                   <div className="relative flex items-center gap-3 pb-3">
                     <div className="relative z-10 shrink-0">
@@ -104,7 +97,6 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                 ) : null}
 
                 <div className="relative flex items-start gap-4 pb-4 last:pb-0">
-                  {/* 도트 */}
                   <div className="relative z-10 mt-1.5 shrink-0">
                     <div
                       className={`size-[11px] rounded-full border-2 ${
@@ -115,7 +107,6 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                     />
                   </div>
 
-                  {/* 라운드 카드 */}
                   <div className="flex-1 rounded-2xl border border-line px-4 py-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -135,9 +126,22 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-muted">
-                      {match.matchFormat.toUpperCase()} · {match.playOrder === "first" ? "선공" : "후공"}
+                      {match.matchFormat.toUpperCase()} ·{" "}
+                      {match.playOrder === "first" ? "선공" : "후공"}
                       {match.memo ? ` · ${match.memo}` : ""}
                     </p>
+                    {match.tags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {match.tags.map(({ tag }) => (
+                          <span
+                            key={tag.id}
+                            className="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-medium text-muted"
+                          >
+                            #{tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                     <div className="mt-2 flex items-center gap-3">
                       <Link
                         href={`/matches/${match.id}/edit`}
@@ -168,7 +172,6 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
         </div>
       </div>
 
-      {/* 다음 라운드 추가 (오늘 대회만) */}
       {!isEnded && group.tournamentSessionId ? (
         <div className="mt-3 ml-3 flex gap-4">
           <div className="relative z-10 mt-1 shrink-0">
@@ -185,7 +188,10 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
             }).toString()}`}
             className="text-sm font-medium text-accent hover:underline"
           >
-            + {group.hasElimination ? `본선 라운드 ${nextEliminationRound}` : `예선 라운드 ${nextSwissRound}`} 추가
+            +{" "}
+            {group.hasElimination
+              ? `본선 라운드 ${nextEliminationRound} 추가`
+              : `예선 라운드 ${nextSwissRound} 추가`}
           </Link>
         </div>
       ) : null}

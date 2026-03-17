@@ -7,6 +7,7 @@ import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchResultInput } from "@/components/match-result-input";
 import { SubmitButton } from "@/components/submit-button";
+import { TagSelector } from "@/components/tag-selector";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -28,7 +29,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   const query = searchParams ? await searchParams : undefined;
   const errorMessage = typeof query?.error === "string" ? query.error : undefined;
 
-  const [match, decks] = await Promise.all([
+  const [match, decks, tags] = await Promise.all([
     prisma.matchResult.findFirst({
       where: {
         id,
@@ -38,6 +39,11 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
         myDeck: {
           select: {
             gameId: true,
+          },
+        },
+        tags: {
+          select: {
+            tagId: true,
           },
         },
       },
@@ -58,6 +64,18 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
         },
       },
     }),
+    prisma.tag.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        name: "asc",
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    }),
   ]);
 
   if (!match) {
@@ -65,7 +83,10 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
   }
 
   return (
-    <AppShell title="기록 수정" headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}>
+    <AppShell
+      title="기록 수정"
+      headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}
+    >
       <div className="mb-4">
         <Link
           href="/matches"
@@ -134,7 +155,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
           </select>
         </label>
         <label className="grid gap-2 text-sm font-medium">
-          선후공 결정여부
+          선후공 결정 여부
           <select
             name="didChoosePlayOrder"
             defaultValue={String(match.didChoosePlayOrder)}
@@ -154,6 +175,7 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
             className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
           />
         </label>
+        <TagSelector tags={tags} defaultSelectedIds={match.tags.map((tag) => tag.tagId)} />
         <div className="md:col-span-2">
           <SubmitButton label="수정 저장" />
         </div>
