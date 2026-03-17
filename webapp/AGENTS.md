@@ -59,11 +59,15 @@ webapp/
 - Advanced report generation
 
 ## Coordination with Claude Code
-This file is the shared instruction set. Progress is tracked in `webapp/STATUS.md`.
-After completing a task:
-1. Commit with a clear message (e.g., `feat(webapp): add Prisma schema`)
-2. Update `webapp/STATUS.md` with completed items
-3. Note any blockers or decisions in the status file
+The `.ai/` directory is the only collaboration document set for this project.
+
+- `.ai/PROJECT_RULES.md`: role boundaries and operating rules
+- `.ai/TASKS.md`: ticket index and status
+- `.ai/handoffs/`: spec and result documents
+- `.ai/reviews/`: review documents
+- `.ai/release/`: release checklist and deploy notes
+
+Do not use `STATUS.md`, ad-hoc notes, or chat-only instructions as collaboration sources of truth.
 
 ## Reference Documents
 - `docs/CLAUDE_WEBAPP_HANDOFF.md` — product decisions and constraints
