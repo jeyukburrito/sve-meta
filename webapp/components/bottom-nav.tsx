@@ -74,7 +74,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-0 border-t border-line bg-surface/90 backdrop-blur">
+    <nav className="sticky bottom-0 z-10 border-t border-line bg-surface/90 backdrop-blur">
       <div className="mx-auto grid max-w-5xl grid-cols-4">
         {navigationItems.map((item) => {
           const active = isActive(item.href, pathname);
