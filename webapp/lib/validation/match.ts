@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const matchResultSchema = z
   .object({
-    playedAt: z.string().min(1),
+    playedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
     gameId: z.string().uuid(),
     myDeckId: z.string().uuid(),
     tournamentSessionId: z.string().uuid().optional(),

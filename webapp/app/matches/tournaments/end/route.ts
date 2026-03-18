@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL("/matches?error=tournament_not_found", request.url));
   }
 
-  await prisma.tournamentSession.updateMany({
+  const result = await prisma.tournamentSession.updateMany({
     where: {
       id: tournamentSessionId,
       userId: user.id,
@@ -34,6 +34,10 @@ export async function POST(request: Request) {
       endedAt: new Date(),
     },
   });
+
+  if (result.count === 0) {
+    return NextResponse.redirect(new URL("/matches?error=tournament_not_found", request.url));
+  }
 
   revalidatePath("/matches");
   revalidatePath("/matches/new");

@@ -12,17 +12,17 @@ export async function deleteAccount() {
   const admin = createAdminClient();
   const supabase = await createClient();
 
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+
+  if (error) {
+    redirect("/settings/profile?error=delete_failed");
+  }
+
   await prisma.user.delete({
     where: {
       id: user.id,
     },
   });
-
-  const { error } = await admin.auth.admin.deleteUser(user.id);
-
-  if (error) {
-    throw new Error(`Failed to delete auth user: ${error.message}`);
-  }
 
   await supabase.auth.signOut();
   redirect("/login?message=account_deleted");
