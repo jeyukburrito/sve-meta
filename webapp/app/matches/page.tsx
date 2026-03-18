@@ -35,6 +35,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
   const eventQuery = filters.event;
   const pageQuery = typeof params?.page === "string" ? Number(params.page) : 1;
   const currentPage = Number.isFinite(pageQuery) && pageQuery > 0 ? Math.floor(pageQuery) : 1;
+  const isFiltered = Boolean(gameIdQuery || deckIdQuery || formatQuery || eventQuery);
 
   const [filterOptions, totalCount, rows] = await Promise.all([
     listMatchFilterOptions(user.id),
@@ -67,11 +68,11 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
       headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}
     >
       <section className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
-        <form className="grid gap-3 md:grid-cols-4">
+        <form className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <AutoSubmitSelect
             name="gameId"
             defaultValue={gameIdQuery}
-            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-ink"
           >
             <option value="">카드게임 전체</option>
             {games.map((game) => (
@@ -83,7 +84,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="deckId"
             defaultValue={deckIdQuery}
-            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-ink"
           >
             <option value="">덱 전체</option>
             {decks.map((deck) => (
@@ -95,7 +96,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="format"
             defaultValue={formatQuery}
-            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-ink"
           >
             <option value="">형식 전체</option>
             <option value="bo1">BO1</option>
@@ -104,7 +105,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           <AutoSubmitSelect
             name="event"
             defaultValue={eventQuery}
-            className="w-full rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
+            className="w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-ink"
           >
             <option value="">분류 전체</option>
             <option value="friendly">친선</option>
@@ -122,9 +123,27 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
           </p>
         </div>
         {displayItems.length === 0 ? (
-          <article className="rounded-3xl border border-dashed border-line bg-surface p-6 text-sm text-muted shadow-sm">
-            아직 등록한 대전 기록이 없습니다.
-          </article>
+          isFiltered ? (
+            <article className="rounded-3xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted shadow-sm">
+              <p>조건에 맞는 기록이 없습니다.</p>
+              <Link
+                href="/matches"
+                className="mt-3 inline-block text-sm text-accent underline underline-offset-2"
+              >
+                필터 초기화
+              </Link>
+            </article>
+          ) : (
+            <article className="rounded-3xl border border-dashed border-line bg-surface p-6 text-center text-sm text-muted shadow-sm">
+              <p>아직 등록한 대전 기록이 없습니다.</p>
+              <Link
+                href="/matches/new"
+                className="mt-3 inline-block rounded-2xl border border-accent px-4 py-2 text-sm font-medium text-accent"
+              >
+                첫 매치 기록하기
+              </Link>
+            </article>
+          )
         ) : null}
         {displayItems.map((item) =>
           item.type === "tournament" ? (
@@ -146,9 +165,8 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                   </h2>
                   <p className="mt-2 text-sm font-medium text-muted">{item.match.myDeck.game.name}</p>
                   <p className="mt-2 text-sm text-muted">
-                    {item.match.matchFormat.toUpperCase()} · {item.match.isMatchWin ? "승" : "패"} ·{" "}
-                    {item.match.playOrder === "first" ? "선공" : "후공"} · 선후공 결정{" "}
-                    {item.match.didChoosePlayOrder ? "O" : "X"}
+                    {item.match.matchFormat.toUpperCase()} ·{" "}
+                    {item.match.playOrder === "first" ? "선공" : "후공"}
                   </p>
                   {item.match.tags.length > 0 ? (
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -177,7 +195,7 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
               <div className="mt-4 flex gap-2">
                 <Link
                   href={`/matches/${item.match.id}/edit`}
-                  className="rounded-full border border-line px-4 py-2 text-sm font-medium"
+                  className="rounded-2xl border border-line px-4 py-2 text-sm font-medium"
                 >
                   수정
                 </Link>
@@ -196,24 +214,24 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
               {prevPage ? (
                 <Link
                   href={buildPageHref(prevPage)}
-                  className="rounded-full border border-line px-4 py-2 text-sm font-medium"
+                  className="rounded-2xl border border-line px-4 py-2 text-sm font-medium"
                 >
                   이전
                 </Link>
               ) : (
-                <span className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted">
+                <span className="rounded-2xl border border-line px-4 py-2 text-sm font-medium text-muted">
                   이전
                 </span>
               )}
               {nextPage ? (
                 <Link
                   href={buildPageHref(nextPage)}
-                  className="rounded-full border border-line px-4 py-2 text-sm font-medium"
+                  className="rounded-2xl border border-line px-4 py-2 text-sm font-medium"
                 >
                   다음
                 </Link>
               ) : (
-                <span className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted">
+                <span className="rounded-2xl border border-line px-4 py-2 text-sm font-medium text-muted">
                   다음
                 </span>
               )}

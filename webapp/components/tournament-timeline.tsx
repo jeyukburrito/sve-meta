@@ -38,12 +38,12 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-semibold text-accent">
+            <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
               {EVENT_LABELS[group.eventCategory] ?? group.eventCategory}
             </span>
             <span className="text-sm text-muted">{formatRelativeDate(group.date)}</span>
             {isEnded ? (
-              <span className="rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs font-semibold text-muted">
+              <span className="rounded-full border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-muted">
                 대회 종료
               </span>
             ) : null}
@@ -91,7 +91,7 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                       <div className="size-[11px]" />
                     </div>
                     <span className="text-xs font-semibold text-muted">
-                      {isElim ? "본선 (토너먼트)" : "예선 (스위스)"}
+                      {isElim ? "본선" : "예선"}
                     </span>
                   </div>
                 ) : null}
@@ -142,12 +142,28 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                         ))}
                       </div>
                     ) : null}
-                    <div className="mt-2 flex items-center gap-3">
+                    <div className="mt-2 flex items-center gap-1">
                       <Link
                         href={`/matches/${match.id}/edit`}
-                        className="text-xs text-muted underline-offset-2 hover:underline"
+                        className="flex size-8 items-center justify-center rounded-full text-muted hover:bg-line"
+                        aria-label="수정"
                       >
-                        수정
+                        <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden="true">
+                          <path
+                            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
                       </Link>
                       <form action={deleteAction} className="flex">
                         <input type="hidden" name="matchId" value={match.id} />
@@ -158,9 +174,18 @@ export function TournamentTimeline({ group, deleteAction }: TournamentTimelinePr
                               e.preventDefault();
                             }
                           }}
-                          className="text-xs text-danger underline-offset-2 hover:underline"
+                          className="flex size-8 items-center justify-center rounded-full text-danger hover:bg-danger/10"
+                          aria-label="삭제"
                         >
-                          삭제
+                          <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden="true">
+                            <path
+                              d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </button>
                       </form>
                     </div>
