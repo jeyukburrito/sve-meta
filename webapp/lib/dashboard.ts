@@ -13,10 +13,26 @@ export type FilterOptions = {
   period: string;
   from?: string;
   to?: string;
+  category?: string;
 };
 
 type AggregateRow = {
   name: string;
+  total: bigint | number;
+  wins: bigint | number;
+};
+
+export type MatchupCell = {
+  myDeck: string;
+  opponentDeck: string;
+  wins: number;
+  total: number;
+  rate: number;
+};
+
+type MatchupRow = {
+  myDeck: string;
+  opponentDeck: string;
   total: bigint | number;
   wins: bigint | number;
 };
@@ -64,7 +80,13 @@ function buildPlayedAtSql(opts: FilterOptions) {
 }
 
 function buildWhereSql(userId: string, opts: FilterOptions) {
+  const { category } = opts;
   const clauses = [Prisma.sql`m."userId" = CAST(${userId} AS uuid)`, ...buildPlayedAtSql(opts)];
+
+  if (category === "friendly" || category === "shop" || category === "cs") {
+    clauses.push(Prisma.sql`m."eventCategory" = ${category}::"EventCategory"`);
+  }
+
   return Prisma.sql`WHERE ${Prisma.join(clauses, " AND ")}`;
 }
 
@@ -105,4 +127,34 @@ export async function getDashboardData(userId: string, opts: FilterOptions) {
     myDeckSlices: toSlices(myDeckRows),
     opponentSlices: toSlices(opponentRows),
   };
+}
+
+export async function getMatchupMatrix(userId: string, opts: FilterOptions): Promise<MatchupCell[]> {
+  const whereSql = buildWhereSql(userId, opts);
+
+  const rows = await prisma.$queryRaw<MatchupRow[]>(Prisma.sql`
+    SELECT
+      d."name" AS "myDeck",
+      m."opponentDeckName" AS "opponentDeck",
+      COUNT(*)::bigint AS total,
+      SUM(CASE WHEN m."isMatchWin" THEN 1 ELSE 0 END)::bigint AS wins
+    FROM "match_results" m
+    INNER JOIN "decks" d ON d."id" = m."myDeckId"
+    ${whereSql}
+    GROUP BY d."name", m."opponentDeckName"
+    ORDER BY d."name" ASC, m."opponentDeckName" ASC
+  `);
+
+  return rows.map((row) => {
+    const total = bigintToNumber(row.total);
+    const wins = bigintToNumber(row.wins);
+
+    return {
+      myDeck: row.myDeck,
+      opponentDeck: row.opponentDeck,
+      wins,
+      total,
+      rate: total === 0 ? 0 : Math.round((wins / total) * 100),
+    };
+  });
 }

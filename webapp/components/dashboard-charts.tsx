@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import type { DonutSlice } from "@/lib/dashboard";
@@ -29,6 +30,12 @@ function DonutChart({ title, data, totalMatches }: DonutChartProps) {
       <article className="rounded-3xl border border-line bg-surface p-5 shadow-sm">
         <h2 className="text-lg font-semibold">{title}</h2>
         <p className="mt-4 text-sm text-muted">표시할 데이터가 없습니다.</p>
+        <Link
+          href="/matches/new"
+          className="mt-3 inline-block text-sm text-accent underline underline-offset-2"
+        >
+          첫 매치를 기록해보세요 →
+        </Link>
       </article>
     );
   }
@@ -67,10 +74,14 @@ function DonutChart({ title, data, totalMatches }: DonutChartProps) {
         <div className="flex-1 space-y-2">
           {data.map((item, i) => (
             <div key={item.name} className="flex items-center gap-3 text-sm">
-              <span
-                className="inline-block size-3 shrink-0 rounded-full"
-                style={{ backgroundColor: COLORS[i % COLORS.length] }}
-              />
+              {i === 0 ? (
+                <span className="inline-block size-3 shrink-0 rounded-full bg-accent" />
+              ) : (
+                <span
+                  className="inline-block size-3 shrink-0 rounded-full"
+                  style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                />
+              )}
               <span className="flex-1 truncate font-medium">{item.name}</span>
               <span className="text-muted">
                 {item.value}회 · 승률 {item.rate}%

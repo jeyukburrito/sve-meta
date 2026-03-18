@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
 type PeriodFilterProps = {
@@ -17,17 +17,19 @@ const presets = [
 
 export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFilterProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const navigate = useCallback(
     (params: Record<string, string>) => {
-      const sp = new URLSearchParams();
+      const sp = new URLSearchParams(searchParams.toString());
       for (const [k, v] of Object.entries(params)) {
         if (v) sp.set(k, v);
+        else sp.delete(k);
       }
       window.gtag?.("event", "dashboard_filter", { period: params.period });
       router.push(`/dashboard?${sp.toString()}`);
     },
-    [router],
+    [router, searchParams],
   );
 
   return (
@@ -37,6 +39,7 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
           <button
             key={p.value}
             type="button"
+            aria-pressed={activePeriod === p.value}
             onClick={() => navigate({ period: p.value })}
             className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
               activePeriod === p.value

@@ -16,3 +16,5 @@
 | ID | 제목 | 상태 | Spec | Result | Review | 비고 |
 |----|------|------|------|--------|--------|------|
 | T-001 | Tag 연동 | `done` | [spec](handoffs/T-001-spec.md) | [result](handoffs/T-001-result.md) | [review](reviews/T-001-review.md) | 설정 CRUD + 매치 폼 연동 + 목록 표시 |
+| T-002 | 대시보드 개선 | `done` | [spec](handoffs/T-002-spec.md) | [result](handoffs/T-002-result.md) | [review](reviews/T-002-review.md) | 이벤트 카테고리 필터 + 상성 매트릭스 (모바일 우선) |
+| T-003 | UI 일관성 개선 | `done` | [spec](handoffs/T-003-spec.md) | [result](handoffs/T-003-result.md) | [review](reviews/T-003-review.md) | Radius 통일, 배지 spacing, 접근성, 빈 상태, Bottom Nav 아이콘 |
