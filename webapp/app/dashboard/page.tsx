@@ -1,13 +1,16 @@
+import dynamic from "next/dynamic";
+
 import { AppShell } from "@/components/app-shell";
 import { CategoryFilter } from "@/components/category-filter";
-import { DashboardCharts } from "@/components/dashboard-charts";
 import { HeaderActions } from "@/components/header-actions";
 import { MatchupMatrix } from "@/components/matchup-matrix";
 import { PeriodFilter } from "@/components/period-filter";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { getDashboardData, getMatchupMatrix } from "@/lib/dashboard";
 
-export const dynamic = "force-dynamic";
+const DashboardCharts = dynamic(
+  () => import("@/components/dashboard-charts").then((mod) => ({ default: mod.DashboardCharts })),
+);
 
 type DashboardPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

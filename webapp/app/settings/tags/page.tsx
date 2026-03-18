@@ -6,8 +6,6 @@ import { prisma } from "@/lib/prisma";
 
 import { createTag, deleteTag } from "./actions";
 
-export const dynamic = "force-dynamic";
-
 type TagsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

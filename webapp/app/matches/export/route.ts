@@ -5,7 +5,6 @@ import { buildCsv } from "@/lib/csv";
 import { listMatchesForUser, parseMatchFilters } from "@/lib/matches";
 import { createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {

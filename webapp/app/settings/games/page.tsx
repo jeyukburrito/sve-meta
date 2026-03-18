@@ -6,8 +6,6 @@ import { prisma } from "@/lib/prisma";
 
 import { createGame, deleteGame, updateGame } from "./actions";
 
-export const dynamic = "force-dynamic";
-
 type GamesPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

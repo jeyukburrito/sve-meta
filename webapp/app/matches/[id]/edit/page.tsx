@@ -13,8 +13,6 @@ import { prisma } from "@/lib/prisma";
 
 import { updateMatchResult } from "../../actions";
 
-export const dynamic = "force-dynamic";
-
 type EditMatchPageProps = {
   params: Promise<{
     id: string;

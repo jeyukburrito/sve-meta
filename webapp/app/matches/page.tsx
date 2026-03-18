@@ -18,8 +18,6 @@ import {
 
 import { deleteMatchResult } from "./actions";
 
-export const dynamic = "force-dynamic";
-
 type MatchesPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

@@ -6,8 +6,6 @@ import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 
 import { signOut } from "../login/actions";
 
-export const dynamic = "force-dynamic";
-
 export default async function SettingsPage() {
   const user = await requireUser();
   const display = getUserDisplayInfo(user);

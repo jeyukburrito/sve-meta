@@ -3,8 +3,6 @@ import { HeaderActions } from "@/components/header-actions";
 import { getUserDisplayInfo, requireUser } from "@/lib/auth";
 import { listMatchFilterOptions } from "@/lib/matches";
 
-export const dynamic = "force-dynamic";
-
 export default async function ExportPage() {
   const user = await requireUser();
   const display = getUserDisplayInfo(user);

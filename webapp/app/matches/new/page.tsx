@@ -11,8 +11,6 @@ import { prisma } from "@/lib/prisma";
 
 import { createMatchResult } from "../actions";
 
-export const dynamic = "force-dynamic";
-
 type NewMatchPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };

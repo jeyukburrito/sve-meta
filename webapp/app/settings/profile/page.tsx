@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Prisma } from "@prisma/client";
@@ -10,8 +11,6 @@ import { formatRelativeDate } from "@/lib/format-date";
 import { prisma } from "@/lib/prisma";
 
 import { deleteAccount } from "./actions";
-
-export const dynamic = "force-dynamic";
 
 type ProfileStats = {
   total: number;
@@ -122,13 +121,13 @@ export default async function ProfilePage() {
           <div className="flex flex-col items-center">
             <div className="flex size-24 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-accent ring-2 ring-accent ring-offset-2 ring-offset-surface">
               {display.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={display.avatarUrl}
                   alt=""
                   width={96}
                   height={96}
                   className="size-full object-cover"
+                  unoptimized
                   referrerPolicy="no-referrer"
                 />
               ) : (

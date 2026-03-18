@@ -21,3 +21,4 @@
 | T-004 | 기록 페이지 버그·UIUX 개선 | `done` | [spec](handoffs/T-004-spec.md) | [result](handoffs/T-004-result.md) | [review](reviews/T-004-review.md) | 설정 아이콘 버그, 괄호 텍스트, 선후공 제거, 아이콘 버튼, 필터 2x2, 빈 상태 CTA |
 | T-005 | 프로필 페이지 개선 | `done` | [spec](handoffs/T-005-spec.md) | [result](handoffs/T-005-result.md) | [review](reviews/T-005-review.md) | 아바타 확대, 통계 그리드, 관리 링크, Danger Zone 분리 |
 | T-006 | 백엔드 안전성 개선 | `done` | [spec](handoffs/T-006-spec.md) | [result](handoffs/T-006-result.md) | [review](reviews/T-006-review.md) | 계정 삭제 순서, playedAt 검증, tournament end 결과 확인 |
+| T-007 | 앱 성능 최적화 | `done` | [spec](handoffs/T-007-spec.md) | | | force-dynamic 제거, Recharts dynamic import, next/image 적용 |
