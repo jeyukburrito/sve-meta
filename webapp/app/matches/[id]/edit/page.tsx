@@ -5,6 +5,7 @@ import { AppShell } from "@/components/app-shell";
 import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
+import { MatchDetailControls } from "@/components/match-detail-controls";
 import { MatchResultInput } from "@/components/match-result-input";
 import { SubmitButton } from "@/components/submit-button";
 import { TagSelector } from "@/components/tag-selector";
@@ -140,30 +141,10 @@ export default async function EditMatchPage({ params, searchParams }: EditMatchP
           defaultFormat={match.matchFormat}
           defaultResult={match.isMatchWin ? "win" : "lose"}
         />
-        <label className="grid gap-2 text-sm font-medium">
-          선공 / 후공
-          <select
-            name="playOrder"
-            defaultValue={match.playOrder}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="first">선공</option>
-            <option value="second">후공</option>
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-medium">
-          선후공 결정 여부
-          <select
-            name="didChoosePlayOrder"
-            defaultValue={String(match.didChoosePlayOrder)}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="true">O</option>
-            <option value="false">X</option>
-          </select>
-        </label>
+        <MatchDetailControls
+          defaultPlayOrder={match.playOrder}
+          defaultDidChoosePlayOrder={match.didChoosePlayOrder}
+        />
         <label className="grid gap-2 text-sm font-medium md:col-span-2">
           메모
           <textarea

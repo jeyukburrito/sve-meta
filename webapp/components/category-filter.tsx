@@ -30,7 +30,7 @@ export function CategoryFilter({ activeCategory = "all" }: CategoryFilterProps) 
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
       {CATEGORIES.map((item) => {
         const isActive = activeCategory === item.value;
 
@@ -39,10 +39,10 @@ export function CategoryFilter({ activeCategory = "all" }: CategoryFilterProps) 
             key={item.value}
             type="button"
             onClick={() => handleSelect(item.value)}
-            className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               isActive
-                ? "border-accent bg-accent text-white"
-                : "border-line bg-surface text-ink"
+                ? "bg-accent text-white shadow-[0_10px_20px_-8px_rgba(79,70,229,0.45)]"
+                : "bg-paper text-ink"
             }`}
             aria-pressed={isActive}
           >

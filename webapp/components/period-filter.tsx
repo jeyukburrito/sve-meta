@@ -34,17 +34,17 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1">
         {presets.map((p) => (
           <button
             key={p.value}
             type="button"
             aria-pressed={activePeriod === p.value}
             onClick={() => navigate({ period: p.value })}
-            className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               activePeriod === p.value
-                ? "border-accent bg-accent text-white"
-                : "border-line bg-surface text-ink"
+                ? "bg-accent text-white shadow-[0_10px_20px_-8px_rgba(79,70,229,0.45)]"
+                : "bg-paper text-ink"
             }`}
           >
             {p.label}
@@ -61,7 +61,7 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
             to: fd.get("to") as string,
           });
         }}
-        className="flex flex-wrap items-end gap-2"
+        className="flex flex-wrap items-end gap-2 rounded-[28px] bg-surface-container-low p-3"
       >
         <label className="grid gap-1 text-xs text-muted">
           시작일
@@ -69,7 +69,7 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
             type="date"
             name="from"
             defaultValue={defaultFrom}
-            className="rounded-2xl border border-line bg-surface px-3 py-2 text-sm text-ink"
+            className="rounded-2xl bg-surface px-3 py-2 text-sm text-ink shadow-sm"
           />
         </label>
         <label className="grid gap-1 text-xs text-muted">
@@ -78,15 +78,15 @@ export function PeriodFilter({ activePeriod, defaultFrom, defaultTo }: PeriodFil
             type="date"
             name="to"
             defaultValue={defaultTo}
-            className="rounded-2xl border border-line bg-surface px-3 py-2 text-sm text-ink"
+            className="rounded-2xl bg-surface px-3 py-2 text-sm text-ink shadow-sm"
           />
         </label>
         <button
           type="submit"
-          className={`rounded-2xl border px-4 py-2 text-sm font-medium transition-colors ${
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
             activePeriod === "custom"
-              ? "border-accent bg-accent text-white"
-              : "border-accent bg-surface text-accent"
+              ? "bg-accent text-white"
+              : "bg-surface text-accent shadow-sm"
           }`}
         >
           적용

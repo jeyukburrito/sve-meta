@@ -2,6 +2,7 @@ import { AppShell } from "@/components/app-shell";
 import { EventCategorySelect } from "@/components/event-category-select";
 import { GameDeckFields } from "@/components/game-deck-fields";
 import { HeaderActions } from "@/components/header-actions";
+import { MatchDetailControls } from "@/components/match-detail-controls";
 import { MatchResultInput } from "@/components/match-result-input";
 import { SubmitButton } from "@/components/submit-button";
 import { TagSelector } from "@/components/tag-selector";
@@ -110,121 +111,143 @@ export default async function NewMatchPage({ searchParams }: NewMatchPageProps) 
     isContinue && roundNumber
       ? `${phaseLabel} R${roundNumber} 기록 저장`
       : isEndedTournament || hasInvalidTournamentContinuation
-        ? "대회 종료됨"
-        : "결과 저장";
+        ? "대회 종료"
+        : "경기 저장";
 
   return (
     <AppShell
-      title="결과 입력"
+      title="경기 입력"
       headerRight={<HeaderActions avatarUrl={display.avatarUrl} name={display.name} />}
     >
-      {isContinue && activeTournamentId && roundNumber ? (
-        <TournamentBanner
-          eventLabel={eventLabel}
-          phaseLabel={phaseLabel}
-          roundNumber={roundNumber}
-          isElimination={isElimination}
-          tournamentSessionId={activeTournamentId}
-          eliminationUrl={eliminationUrl}
-        />
-      ) : null}
-      {isContinue && (isEndedTournament || hasInvalidTournamentContinuation) ? (
-        <div className="mb-4 rounded-2xl border border-line bg-line/20 px-4 py-3 text-sm text-muted">
-          <p className="font-medium text-muted">대회 종료</p>
-          <p className="mt-1">
-            {isEndedTournament
-              ? "종료된 대회입니다. 기존 경기 기록은 수정할 수 있지만 새 라운드는 추가할 수 없습니다."
-              : "이어지는 대회 세션을 찾을 수 없습니다. 기록 목록에서 기존 대회를 확인해 주세요."}
-          </p>
-        </div>
-      ) : null}
-      <form
-        action={createMatchResult}
-        className="grid gap-4 rounded-3xl border border-line bg-surface p-5 shadow-sm md:grid-cols-2"
-      >
-        {errorMessage ? (
-          <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger md:col-span-2">
-            {errorMessage}
+      <div className="mx-auto flex max-w-md flex-col gap-4 pb-28">
+        {isContinue && activeTournamentId && roundNumber ? (
+          <TournamentBanner
+            eventLabel={eventLabel}
+            phaseLabel={phaseLabel}
+            roundNumber={roundNumber}
+            isElimination={isElimination}
+            tournamentSessionId={activeTournamentId}
+            eliminationUrl={eliminationUrl}
+          />
+        ) : null}
+
+        {isContinue && (isEndedTournament || hasInvalidTournamentContinuation) ? (
+          <div className="rounded-3xl bg-surface-container-low p-4 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-danger">
+              Tournament Notice
+            </p>
+            <p className="mt-2 text-sm font-semibold text-ink">대회 입력을 계속할 수 없습니다</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              {isEndedTournament
+                ? "종료된 대회입니다. 기존 경기 기록은 수정할 수 있지만, 새로운 라운드는 추가할 수 없습니다."
+                : "이어진 대회 세션을 찾을 수 없습니다. 기록 목록에서 현재 상태를 다시 확인해주세요."}
+            </p>
           </div>
         ) : null}
-        {isContinue && continueTournamentId ? (
-          <>
-            <input type="hidden" name="tournamentPhase" value={phase} />
-            <input type="hidden" name="tournamentSessionId" value={continueTournamentId} />
-          </>
-        ) : null}
-        <EventCategorySelect defaultValue={continueEvent ?? "friendly"} />
-        <label className="grid gap-2 text-sm font-medium">
-          날짜
-          <input
-            name="playedAt"
-            type="date"
-            required
-            defaultValue={today}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-          />
-        </label>
-        <GameDeckFields
-          decks={decks.map((deck) => ({
-            id: deck.id,
-            name: deck.name,
-            gameId: deck.gameId,
-            gameName: deck.game.name,
-          }))}
-          defaultGameId={continueGame}
-          defaultDeckId={continueDeck}
-        />
-        <label className="grid gap-2 text-sm font-medium">
-          상대 덱
-          <input
-            name="opponentDeckName"
-            type="text"
-            required
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-          />
-        </label>
-        <MatchResultInput />
-        <label className="grid gap-2 text-sm font-medium">
-          선공 / 후공
-          <select
-            name="playOrder"
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="first">선공</option>
-            <option value="second">후공</option>
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-medium">
-          선후공 결정 여부
-          <select
-            name="didChoosePlayOrder"
-            defaultValue="false"
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-            required
-          >
-            <option value="true">O</option>
-            <option value="false">X</option>
-          </select>
-        </label>
-        <label className="grid gap-2 text-sm font-medium md:col-span-2">
-          메모
-          <textarea
-            name="memo"
-            rows={2}
-            className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-          />
-        </label>
-        <TagSelector tags={tags} />
-        <div className="md:col-span-2">
+
+        <form action={createMatchResult} className="space-y-4">
+          {isContinue && continueTournamentId ? (
+            <>
+              <input type="hidden" name="tournamentPhase" value={phase} />
+              <input type="hidden" name="tournamentSessionId" value={continueTournamentId} />
+            </>
+          ) : null}
+
+          <section className="grid gap-3 rounded-3xl bg-surface-container-low p-4 shadow-sm">
+            <div className="flex items-end justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-accent">
+                  New Record
+                </p>
+                <h2 className="mt-1 text-xl font-bold tracking-tight">경기 입력</h2>
+              </div>
+              <span className="rounded-full bg-accent/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.24em] text-accent">
+                Tactical
+              </span>
+            </div>
+
+            <div className="grid gap-3 rounded-2xl bg-paper p-3">
+              <EventCategorySelect defaultValue={continueEvent ?? "friendly"} />
+              <label className="grid gap-2 text-sm font-semibold">
+                날짜
+                <input
+                  name="playedAt"
+                  type="date"
+                  required
+                  defaultValue={today}
+                  className="rounded-2xl bg-surface px-4 py-3 text-ink shadow-sm"
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="grid gap-3 rounded-3xl bg-surface-container-low p-4 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted">
+              Match Setup
+            </p>
+            <GameDeckFields
+              decks={decks.map((deck) => ({
+                id: deck.id,
+                name: deck.name,
+                gameId: deck.gameId,
+                gameName: deck.game.name,
+              }))}
+              defaultGameId={continueGame}
+              defaultDeckId={continueDeck}
+            />
+            <div className="grid gap-3">
+              <label className="grid gap-2 text-sm font-semibold">
+                상대 덱명
+                <input
+                  name="opponentDeckName"
+                  type="text"
+                  required
+                  className="rounded-2xl bg-surface px-4 py-3 text-ink shadow-sm"
+                />
+              </label>
+            </div>
+          </section>
+
+          <MatchResultInput />
+          <MatchDetailControls />
+
+          <section className="grid gap-3 rounded-3xl bg-surface-container-low p-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted">Notes</p>
+              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-muted">
+                Optional
+              </span>
+            </div>
+            <label className="grid gap-2 text-sm font-semibold">
+              메모
+              <textarea
+                name="memo"
+                rows={3}
+                className="min-h-28 rounded-2xl bg-surface px-4 py-3 text-ink shadow-sm"
+              />
+            </label>
+            <TagSelector tags={tags} />
+          </section>
+
+          {errorMessage ? (
+            <div className="rounded-2xl border border-danger/30 bg-danger/5 p-4 text-sm text-danger">
+              {errorMessage}
+            </div>
+          ) : null}
+
           {decks.length === 0 ? (
-            <p className="mb-3 text-sm text-danger">
-              먼저 설정에서 카드게임과 덱을 1개 이상 등록해야 결과를 기록할 수 있습니다.
+            <p className="rounded-2xl border border-dashed border-line bg-paper p-4 text-sm text-danger">
+              먼저 설정에서 덱과 게임을 1개 이상 등록해야 경기를 기록할 수 있습니다.
             </p>
           ) : null}
-          <SubmitButton label={submitLabel} disabled={submitDisabled} />
-        </div>
-      </form>
+
+          <div className="fixed inset-x-0 bottom-24 z-40 bg-surface/90 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg">
+            <div className="mx-auto max-w-md">
+              <SubmitButton label={submitLabel} disabled={submitDisabled} />
+            </div>
+          </div>
+        </form>
+      </div>
     </AppShell>
   );
 }

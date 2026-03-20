@@ -11,7 +11,7 @@ export function ProfileAvatar({ avatarUrl, name }: ProfileAvatarProps) {
   return (
     <Link
       href="/settings/profile"
-      className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent/10 text-accent transition-shadow hover:ring-2 hover:ring-accent/30"
+      className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-fixed text-primary transition-all hover:scale-[0.98] hover:bg-primary-fixed-dim/70"
       aria-label="프로필"
     >
       {avatarUrl ? (
@@ -25,12 +25,11 @@ export function ProfileAvatar({ avatarUrl, name }: ProfileAvatarProps) {
           referrerPolicy="no-referrer"
         />
       ) : initial ? (
-        <span className="text-sm font-semibold">{initial}</span>
+        <span className="text-sm font-bold">{initial}</span>
       ) : (
-        <svg viewBox="0 0 32 32" className="size-5" fill="currentColor">
-          <circle cx="16" cy="12" r="5" />
-          <path d="M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10" />
-        </svg>
+        <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+          account_circle
+        </span>
       )}
     </Link>
   );

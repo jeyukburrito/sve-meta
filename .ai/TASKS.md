@@ -23,4 +23,4 @@
 | T-006 | 백엔드 안전성 개선 | `done` | [spec](handoffs/T-006-spec.md) | [result](handoffs/T-006-result.md) | [review](reviews/T-006-review.md) | 계정 삭제 순서, playedAt 검증, tournament end 결과 확인 |
 | T-007 | 앱 성능 최적화 | `done` | [spec](handoffs/T-007-spec.md) | [result](handoffs/T-007-result.md) | [review](reviews/T-007-review.md) | force-dynamic 제거, Recharts dynamic import, next/image 적용 |
 | T-008 | PWA 적용 | `ready` | [spec](handoffs/T-008-spec.md) | | | manifest, SW, 오프라인 페이지, 앱 아이콘 |
-| T-009 | Tactical Editorial UI 전면 개편 | `ready` | [spec](handoffs/T-009-spec.md) | | | 디자인 토큰, TopAppBar, BottomNav, 대시보드·기록·입력·프로필 페이지 |
+| T-009 | Tactical Editorial UI 전면 개편 | `review` | [spec](handoffs/T-009-spec.md) | [result](handoffs/T-009-result.md) | [review](reviews/T-009-review.md) | ❌ REJECT — Blocking 5건 수정 후 재제출 |

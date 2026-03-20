@@ -13,7 +13,7 @@ export function SubmitButton({
   label,
   pendingLabel = "처리 중...",
   disabled,
-  className = "w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50",
+  className = "w-full rounded-[20px] bg-gradient-to-r from-primary to-primary-container px-5 py-4 text-base font-bold text-on-primary shadow-[0_12px_32px_-4px_rgba(81,63,198,0.3)] transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 

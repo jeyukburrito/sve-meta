@@ -17,17 +17,17 @@ export function EventCategorySelect({ defaultValue = "friendly" }: EventCategory
 
   return (
     <div className="grid gap-2 text-sm font-medium md:col-span-2">
-      대회 분류
-      <div className="grid grid-cols-3 gap-2">
+      <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-muted">Event Category</span>
+      <div className="grid grid-cols-3 gap-2 rounded-[28px] bg-surface-container-low p-1.5">
         {CATEGORIES.map((cat) => (
           <button
             key={cat.value}
             type="button"
             onClick={() => setSelected(cat.value)}
-            className={`rounded-2xl border px-3 py-3 text-sm font-semibold transition-colors ${
+            className={`rounded-2xl px-3 py-3 text-sm font-semibold transition-all ${
               selected === cat.value
-                ? "border-accent bg-accent/10 text-accent"
-                : "border-line text-muted"
+                ? "bg-surface text-accent shadow-sm"
+                : "text-muted"
             }`}
           >
             {cat.label}

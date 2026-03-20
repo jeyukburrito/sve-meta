@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import { BottomNav } from "@/components/bottom-nav";
+import { TopAppBar } from "@/components/top-app-bar";
 
 type AppShellProps = {
   title: string;
@@ -11,23 +12,9 @@ type AppShellProps = {
 
 export function AppShell({ title, description, headerRight, children }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <header className="border-b border-line bg-surface/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <div>
-            <span
-              aria-hidden="true"
-              className="block text-xs font-semibold uppercase tracking-[0.2em] text-accent"
-            >
-              TCG Match Tracker
-            </span>
-            <h1 className="text-lg font-semibold">{title}</h1>
-            {description ? <p className="text-sm text-muted">{description}</p> : null}
-          </div>
-          {headerRight ? <div className="flex items-center gap-2">{headerRight}</div> : null}
-        </div>
-      </header>
-      <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+    <div className="min-h-dvh bg-paper text-on-surface">
+      <TopAppBar title={title} description={description} right={headerRight} />
+      <main className="mx-auto w-full max-w-md px-4 py-5 pb-28">{children}</main>
       <BottomNav />
     </div>
   );

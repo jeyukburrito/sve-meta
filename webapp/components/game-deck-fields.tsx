@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { SelectSheetField } from "@/components/select-sheet-field";
+
 type GameDeckOption = {
   id: string;
   name: string;
@@ -54,41 +56,30 @@ export function GameDeckFields({
 
   return (
     <>
-      <label className="grid gap-2 text-sm font-medium">
-        카드 게임
-        <select
-          name="gameId"
-          value={selectedGameId}
-          onChange={(event) => setSelectedGameId(event.target.value)}
-          className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-          required
-        >
-          <option value="">카드 게임을 선택해 주세요.</option>
-          {availableGames.map((game) => (
-            <option key={game.id} value={game.id}>
-              {game.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="grid gap-2 text-sm font-medium">
-        내 덱
-        <select
-          name="myDeckId"
-          value={selectedDeckId}
-          onChange={(event) => setSelectedDeckId(event.target.value)}
-          className="rounded-2xl border border-line bg-surface px-4 py-3 text-ink"
-          required
-          disabled={!selectedGameId}
-        >
-          <option value="">덱을 선택해 주세요.</option>
-          {filteredDecks.map((deck) => (
-            <option key={deck.id} value={deck.id}>
-              {deck.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <SelectSheetField
+        name="gameId"
+        label="Game"
+        value={selectedGameId}
+        placeholder="카드 게임을 선택해 주세요."
+        options={availableGames.map((game) => ({
+          value: game.id,
+          label: game.name,
+        }))}
+        onChange={setSelectedGameId}
+      />
+      <SelectSheetField
+        name="myDeckId"
+        label="Deck"
+        value={selectedDeckId}
+        placeholder={selectedGameId ? "덱을 선택해 주세요." : "먼저 게임을 선택해 주세요."}
+        options={filteredDecks.map((deck) => ({
+          value: deck.id,
+          label: deck.name,
+          description: deck.gameName,
+        }))}
+        onChange={setSelectedDeckId}
+        disabled={!selectedGameId}
+      />
     </>
   );
 }
