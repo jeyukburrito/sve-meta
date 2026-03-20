@@ -2,7 +2,7 @@
   "name": "TCG Match Tracker",
   "short_name": "TCG Tracker",
   "description": "개인 TCG 대전 기록 및 통계 웹앱",
-  "start_url": "/dashboard",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#4f46e5",
