@@ -4,15 +4,11 @@ Shadowverse EVOLVE 공식 대회 결과를 수집하고, 정규화·클러스터
 
 ## 메타 분석 파이프라인
 
-Shadowverse EVOLVE 공식 대회 결과를 자동 수집하고, AI가 한국어 메타 리포트를 작성하는 파이프라인입니다.
-
-### 흐름
-
 ```
-수집 (Playwright) → 정규화 → 클러스터링 (Codex) → RAG enrichment → 리포트 (Gemini)
+수집 (Python Playwright) → 정규화 → 클러스터링 (Codex) → RAG enrichment → 리포트 (Gemini)
 ```
 
-1. **수집** — bushi-navi.com API 인터셉트 → 대회 순위·덱코드 추출 / decklog → 카드 구성 수집
+1. **수집** — bushi-navi.com API 인터셉트 → 대회 순위·덱코드 추출 / decklog → 메인+이볼브 카드 구성 수집 (`scripts/collect.py`)
 2. **정규화** — PR/SL 등 변형 카드 코드를 canonical 코드로 통일 (`scripts/normalize_cards.py`)
 3. **분석** — 클래스별 집계, 덱 클러스터링, 카드 채용률 산출
 4. **RAG** — 카드 DB 효과 텍스트를 통계에 결합하여 Gemini 프롬프트 생성
@@ -22,23 +18,26 @@ Shadowverse EVOLVE 공식 대회 결과를 자동 수집하고, AI가 한국어 
 
 | 역할 | 도구 |
 |------|------|
-| 오케스트레이터 | Claude Code |
-| 웹 스크래핑 | Playwright MCP |
+| 오케스트레이터 + 차트 생성 | Claude Code |
+| 웹 스크래핑 (데이터 수집) | Python Playwright (`scripts/collect.py`) |
 | 코드 작성·데이터 처리 | Codex MCP |
 | 메타 해석·리포트 | Gemini MCP |
 
 ### 사용법
 
 ```bash
+# 대회 데이터 수집
+python3 scripts/collect.py
+
 # 덱 클러스터링
-python3 scripts/run_cluster.py
+python3 scripts/cluster.py
 
 # 카드 채용률 분석
-python3 scripts/card_stats.py
+python3 scripts/analyzer.py
 
 # RAG 파이프라인 → 리포트 생성
 python3 rag/pipeline.py \
-  --tsv data/개인전_v2.txt \
+  --tsv data/개인전_v3.txt \
   --clusters data/analysis/deck_clusters.csv \
   --out output/$(date +%Y%m%d)
 ```
@@ -47,8 +46,8 @@ python3 rag/pipeline.py \
 
 | 데이터 | 설명 |
 |--------|------|
-| `data/개인전_v2.txt` | 개인전 누적 데이터 (7컬럼 TSV, canonical 코드) |
-| `data/트리오.txt` | 트리오 누적 데이터 |
+| `data/개인전_v3.txt` | 개인전 누적 데이터 (8컬럼 TSV, canonical 코드, 이볼브 덱 포함) |
+| `data/트리오_v2.txt` | 트리오 누적 데이터 (8컬럼 TSV) |
 | `data/carddb_json/` | 카드 DB 49세트, 6,500장+ (JSON) |
 | `data/analysis/` | 클러스터링·채용률 결과 (CSV) |
 | `reports/` | 생성된 메타 리포트 |
@@ -59,7 +58,7 @@ python3 rag/pipeline.py \
 
 ```
 sve_meta/
-├── scripts/                # 데이터 처리·분석 스크립트
+├── scripts/                # 데이터 수집·처리·분석 스크립트
 ├── rag/                    # RAG 파이프라인 (retriever, prompt builder)
 ├── data/                   # 수집 데이터·카드 DB
 ├── reports/                # 메타 리포트
