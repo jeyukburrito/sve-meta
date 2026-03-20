@@ -1,2 +1,0 @@
--- No-op. The schema change was consolidated into
--- 20260315064917_simplify_match_input to keep migration order valid.

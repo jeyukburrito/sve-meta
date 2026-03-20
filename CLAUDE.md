@@ -1,3 +1,71 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
+### 1. Plan Node Default
+- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately - don't keep pushing
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
+
+---
+
+### 2. Subagent Strategy
+- Use subagents liberally to keep main context window clean
+- Offload research, exploration, and parallel analysis to subagents
+- For complex problems, throw more compute at it via subagents
+- One task per subagent for focused execution
+
+---
+
+### 3. Self-Improvement Loop
+- After ANY correction from the user: update `tasks/lessons.md` with the pattern
+- Write rules for yourself that prevent the same mistake
+- Ruthlessly iterate on these lessons until mistake rate drops
+- Review lessons at session start for relevant project
+
+---
+
+### 4. Verification Before Done
+- Never mark a task complete without proving it works
+- Diff behavior between main and your changes when relevant
+- Ask yourself: "Would a staff engineer approve this?"
+- Run tests, check logs, demonstrate correctness
+
+---
+
+### 5. Demand Elegance (Balanced)
+- For non-trivial changes: pause and ask "is there a more elegant way?"
+- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
+- Skip this for simple, obvious fixes - don't over-engineer
+- Challenge your own work before presenting it
+
+---
+
+### 6. Autonomous Bug Fixing
+- When given a bug report: just fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests - then resolve them
+- Zero context switching required from the user
+- Go fix failing CI tests without being told how
+
+---
+
+## Task Management
+1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
+2. **Verify Plan**: Check in before starting implementation
+3. **Track Progress**: Mark items complete as you go
+4. **Explain Changes**: High-level summary at each step
+5. **Document Results**: Add review section to `tasks/todo.md`
+6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+
+---
+
+## Core Principles
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code
+- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards
+
 # 섀도우버스 이볼브 메타 분석 프로젝트
 
 ## 기본 지침
@@ -53,13 +121,13 @@
 | 리더 에리어 | ○ | - | 리더 배치 |
 | 필드 | ○ | 5장 | 팔로워·아뮬렛 배치 |
 | 덱 | × | - | 위에서 드로우 |
-| 에볼브 덱 | ×(자신만) | - | 진화용 카드 |
+| 이볼브 덱 | ×(자신만) | - | 진화용 카드 |
 | 핸드 | ×(자신만) | 7장 | 미사용 카드 |
 | EX 에리어 | ○ | 5장 | 공개 상태 미사용 카드 |
 | 묘지 | ○ | - | 사용 완료 카드 |
 | 소멸 영역 | ○ | - | 소멸된 카드 |
 | 해결 영역 | ○ | - | 양자 공유 임시 영역 |
-| 진화 영역 | ○ | - | 에볼브 카드 |
+| 진화 영역 | ○ | - | 이볼브 카드 |
 | 출주 영역 | ○ | - | 우마무스메 전용 |
 | 드라이브 영역 | ○ | - | 뱅가드 전용 |
 | 트리거 영역 | ○ | - | 뱅가드 전용 |
@@ -81,7 +149,7 @@
 4. 데미지 교환 (동시) → 체크 → 공격 종료
 
 ## 진화 시스템
-- **통상 진화**: 기동 능력, 1턴 1회. 에볼브 덱에서 적정 카드 공개 + PP(EP 대체 가능)
+- **통상 진화**: 기동 능력, 1턴 1회. 이볼브 덱에서 적정 카드 공개 + PP(EP 대체 가능)
 - **초진화**: 경과 턴 선공7+/후공6+ 시 SEP 1점 추가 지불. 공격력+1/체력+1
 
 ## 능력 분류
@@ -128,14 +196,14 @@
 | ナイトメア | 진홍 | 자기 턴 중 리더 체력 감소 이력 |
 
 ## 타이틀별 키워드
-- **우마무스메**: 식사(에볼브 덱 당근→출주 영역), 식사 능력(진화 상당), 출주(돌진+사건), 출주 시
+- **우마무스메**: 식사(이볼브 덱 당근→출주 영역), 식사 능력(진화 상당), 출주(돌진+사건), 출주 시
 - **데레마스**: 마법의 아이템(EX에 토큰5개 배치), 레슨 N(마법의 아이템 N장 소멸)
 - **뱅가드**: 트리거(크리/드로/스탠드/힐), 스타트 아뮬렛, 드라이브 체크, 빙의/라이드(진화 상당)
 - **프리코네**: 유니온 버스트(타이틀 기준 전용), 이퀴프먼트/장비(토큰→관련부여)
 
 ## 덱 구축
-- 리더 1장 / 메인 덱 40~50장 / 에볼브 덱 0~10장
-- 동명 제한: 메인 3 + 에볼브 3 = 총 6장
+- 리더 1장 / 메인 덱 40~50장 / 이볼브 덱 0~10장
+- 동명 제한: 메인 3 + 이볼브 3 = 총 6장
 - 클래스 기준: 리더와 동일 클래스 or 뉴트럴 / 타이틀 기준: 동일 타이틀
 
 ## 특정 표기 퀵 레퍼런스
@@ -187,38 +255,33 @@
 
 | 역할 | 도구 |
 |------|------|
-| 웹 스크래핑 | Playwright MCP |
+| 웹 스크래핑 (데이터 수집) | Python Playwright (`scripts/collect.py`) |
 | 데이터 처리·분석 코드 작성 | Codex MCP |
 | 메타 해석·리포트 생성 | Gemini MCP |
-| 오케스트레이터 | Claude (본 에이전트) |
+| 오케스트레이터 + 차트 생성 | Claude (본 에이전트) |
 
 ---
 
 ## 에이전트 역할 분담
 
-### 🎭 Claude (오케스트레이터)
+### 🎭 Claude (오케스트레이터 + 차트 생성)
 - 전체 파이프라인 조율, 각 MCP 작업 위임 및 결과 통합
+- **데이터 기반 차트 직접 생성** (matplotlib/plotly — 인코딩 주의)
 - 룰 판정 필요 시 Layer 1 즉시 참조 → 부족하면 Layer 2 파일 확인
 - 오류 발생 시 재시도 로직 결정
 
-### 🌐 Playwright MCP
+### 🐍 Python Playwright (`scripts/collect.py`)
 **담당: 웹 스크래핑 (데이터 수집)**
 - bushi-navi.com API 인터셉트 → 대회 목록·순위·덱코드 추출
-- decklog.bushiroad.com → 메인 덱 카드 코드 추출
+- decklog.bushiroad.com → 메인 덱 + 이볼브 덱 카드 코드 추출
 - shadowverse-evolve.com → 카드 DB 수집
 
 ### ⚙️ Codex MCP
-**담당: 모든 코드 작성 및 데이터 처리**
+**담당: 코드 작성 및 데이터 처리**
 - 수집 원시 데이터 정제·정규화 (normalize_cards.py 활용)
 - 클래스별 집계, 덱 유사도 분석, 카드 채용률 통계
-- 덱 클러스터링, 시각화 (matplotlib/plotly)
+- 덱 클러스터링
 - RAG 파이프라인 유지보수
-
-### 🧠 Gemini MCP
-**담당: 메타 해석·리포트 작성**
-- Codex 생성 통계 + RAG enriched_data 기반 메타 서술
-- 카드 채용 트렌드 해석, 환경 변화 감지
-- 한국어 분석 리포트 작성
 
 ---
 
@@ -227,21 +290,22 @@
 ```
 sve_meta/
 ├── CLAUDE.md                      # 본 파일
-├── SKILL.md                       # 사용 가능한 워크플로 명령 목록
 ├── data/
-│   ├── 개인전_v2.txt               # 누적 수집 데이터 (카드 코드 형식, 7컬럼 TSV)
-│   ├── 트리오.txt                  # 트리오 누적 수집 데이터 (7컬럼 TSV)
+│   ├── 개인전_v3.txt               # 누적 수집 데이터 (8컬럼 TSV, 현재 기준)
+│   ├── 트리오_v2.txt               # 트리오 누적 수집 데이터 (8컬럼 TSV, 현재 기준)
 │   ├── raw/                       # Playwright 수집 원시 JSON
 │   ├── processed/                 # 정제된 TSV
 │   ├── analysis/                  # 분석 결과 (CSV, 차트)
 │   │   ├── deck_clusters.csv      # 덱 클러스터링 결과
 │   │   └── card_stats_{class}_archetype{id}.csv
 │   ├── carddb_json/               # 카드 DB (세트별 JSON, canonical 기준)
-│   └── carddb/                    # 카드 DB (세트별 CSV)
+│   ├── carddb/                    # 카드 DB (세트별 CSV)
+│   └── archetypes/                # 아키타입 YAML (덱 메타정보)
 ├── docs/
 │   ├── rules/                     # Layer 2 상세 룰 (17파일)
 │   └── ShadowverseEVOLVE_cr_1.24.1_260129.pdf
 ├── scripts/
+│   ├── collect.py                 # 대회 데이터 수집 (Python Playwright)
 │   ├── normalize_cards.py         # 카드 코드 정규화 (canonical 변환)
 │   ├── analyzer.py                # 통계 분석
 │   └── cluster.py                 # 덱 아키타입 군집 분석
@@ -266,6 +330,7 @@ sve_meta/
 ### bushi-navi.com API
 
 > Next.js SPA → Playwright `waitForResponse`로 인터셉트 필수 (직접 fetch는 CORS 차단)
+> CloudFront WAF 보호 → Python requests 직접 호출 시 404 → Python Playwright 필수
 
 | 엔드포인트 | 설명 |
 |-----------|------|
@@ -279,7 +344,7 @@ sve_meta/
     "event_detail": {
       "start_datetime": "2026-02-23T03:00:00+00:00",
       "joined_player_count": 33,
-      "series_type": 3
+      "team_count": 1
     },
     "grouped_rankings": {
       "": {
@@ -294,28 +359,32 @@ sve_meta/
 ```
 - `grouped_rankings` → 최종 순위 Top 8 사용
 - `primary_result` → 예선 스위스 결과 (미사용)
+- **개인전/트리오 구분**: `event_detail.team_count` 기준 (1=개인전, 3=트리오)
+  - `series_type`은 SVE 전체가 항상 3이므로 구분 불가 — **사용 금지**
 
 ### decklog.bushiroad.com 카드 추출
 
 - URL: `https://decklog.bushiroad.com/view/{deck_recipe_id}`
-- 페이지 로드 후 **2초** 대기
+- 페이지 로드 후 **2초** 대기 (CSR 앱 — 즉시 DOM 추출 불가)
 - **카드 코드**: `.card-item img.card-view-item` 의 `title` 속성 → `" : "` 앞 부분
   - 예: `title="BP17-106 : デバイスチューナー"` → `code = "BP17-106"`
 - **장수**: `.card-item span.num`
-- 에볼브 덱 수집하지 않음
+- 메인 덱 + 이볼브 덱 모두 수집 (h3 텍스트로 섹션 구분)
 - 수집 후 `normalize_deck()` 호출 → canonical 코드로 변환
 
 ```js
-// 메인 덱 카드 코드 추출
-const h3s = Array.from(document.querySelectorAll('h3'));
-const mainH3 = h3s.find(h => h.textContent.includes('メインデッキ'));
-return Array.from(mainH3.nextElementSibling.querySelectorAll('.card-item')).map(item => ({
-  code: item.querySelector('img.card-view-item').getAttribute('title').split(' : ')[0].trim(),
-  count: parseInt(item.querySelector('span.num').textContent)
-}));
+const findSection = (label) => {
+  const h3 = Array.from(document.querySelectorAll('h3')).find(h => h.textContent.includes(label));
+  if (!h3) return null;
+  return Array.from(h3.nextElementSibling.querySelectorAll('.card-item')).map(item => ({
+    code: item.querySelector('img.card-view-item').getAttribute('title').split(' : ')[0].trim(),
+    count: parseInt(item.querySelector('span.num').textContent)
+  }));
+};
+return { main: findSection('メインデッキ'), evolve: findSection('エボルブデッキ') };
 ```
 
-### 수집 필드 및 TSV 형식
+### 수집 필드 및 TSV 형식 (v3 — 8컬럼)
 
 | 필드 | 설명 | 예시 |
 |------|------|------|
@@ -326,17 +395,18 @@ return Array.from(mainH3.nextElementSibling.querySelectorAll('.card-item')).map(
 | `덱코드` | decklog 코드 | 61PZ2 |
 | `대회코드` | bushi-navi 대회 ID | 1450587 |
 | `카드` | 메인 덱 `{canonical_code: 장수}` | `{'BP17-106': 3, ...}` |
+| `이볼브` | 이볼브 덱 `{canonical_code: 장수}` | `{'BP17-E01': 1, ...}` |
 
 ```
-날짜	직업	등수	참가자	덱코드	대회코드	카드
-2026-02-23	エルフ	1	33	1QR64	1450587	{'BP01-015': 2, 'BP04-010': 3, ...}
+날짜	직업	등수	참가자	덱코드	대회코드	카드	이볼브
+2026-03-17	エルフ	1	14	ABCDE	1519521	{'BP01-015': 2, ...}	null
 ```
 
 ### 수집 규칙
 - **개인전**: grouped_rankings 1~8위 수집 / 참가자 **9인 미만 대회 제외**
 - **트리오**: 참가자 수 제한 없이 전부 수집
 - 요청 딜레이: decklog 페이지마다 **1.5초** 대기
-- 덱코드 없는 플레이어: `카드` 필드 `null`
+- 덱코드 없는 플레이어: `카드` 및 `이볼브` 필드 `null`
 
 ---
 
@@ -367,7 +437,7 @@ decklog에서 수집한 카드 코드(PR-339, BP12-SL23 등)를 canonical 코드
 ```bash
 python3 scripts/normalize_cards.py --test          # self-test
 python3 scripts/normalize_cards.py \               # 마이그레이션
-  --input data/개인전.txt --output data/개인전_v2.txt
+  --input data/개인전_v2.txt --output data/개인전_v3.txt
 ```
 
 ---
@@ -415,12 +485,12 @@ ul.cardlist-Result_List_Txt li → 카드 아이템
 ## 작업 파이프라인
 
 ```
-[1] 대회 데이터 수집 (Playwright MCP)
+[1] 대회 데이터 수집 (Python Playwright — scripts/collect.py)
     ├─ bushi-navi API 인터셉트 → 대회 목록 순회 (offset 증가)
     ├─ grouped_rankings → 순위/클래스/deck_recipe_id 추출
-    ├─ decklog 방문 → 카드 코드 추출 (img[title])
+    ├─ decklog 방문 → 메인 + 이볼브 카드 코드 추출 (img[title])
     ├─ normalize_deck() → canonical 코드 변환
-    └─ data/개인전_v2.txt / data/트리오.txt 에 TSV 추가
+    └─ data/개인전_v3.txt / data/트리오_v2.txt 에 TSV 추가
 
 [2] 통계 분석 (Codex MCP)
     ├─ 클래스별 우승·TOP8 집계
@@ -454,7 +524,7 @@ ul.cardlist-Result_List_Txt li → 카드 아이템
 ### 실행
 ```bash
 python3 rag/pipeline.py \
-  --tsv data/개인전_v2.txt \
+  --tsv data/개인전_v3.txt \
   --clusters data/analysis/deck_clusters.csv \
   --out output/$(date +%Y%m%d)
 ```
@@ -498,8 +568,8 @@ python3 rag/pipeline.py \
 
 ## 주의사항
 
-- bushi-navi.com은 **Next.js SPA** → Playwright 필수
+- bushi-navi.com은 **Next.js SPA + CloudFront WAF** → Python Playwright 필수 (requests 직접 호출 불가)
 - 스크래핑 시 **과도한 요청 금지** → decklog 페이지당 1.5초 딜레이 준수
 - 카드 DB 클릭 후 **1500ms 이상** 대기 (부족 시 클래스 매핑 누락)
 - 데이터는 **개인 분석 목적**으로만 사용
-- `data/개인전_v2.txt` 가 현재 기준 데이터 파일
+- `data/개인전_v3.txt` 가 현재 기준 데이터 파일 (8컬럼 TSV)
