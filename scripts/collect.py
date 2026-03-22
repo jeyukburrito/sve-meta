@@ -230,7 +230,8 @@ async def run(date_from: str, date_to: str, dry_run: bool) -> None:
                 log.info("[%s] %s %d명 < 9 → 스킵", event_id, fmt, players)
                 continue
 
-            grouped = detail.get("success", {}).get("grouped_rankings", {}).get("", {})
+            gr_raw  = detail.get("success", {}).get("grouped_rankings", {})
+            grouped = gr_raw.get("", {}) if isinstance(gr_raw, dict) else {}
             count = 0
             for team in grouped.values():
                 rank = team.get("rank")
